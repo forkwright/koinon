@@ -1,0 +1,25 @@
+# koinon
+
+Fleet-common Rust scaffolding for forkwright crates.
+
+## Purpose
+
+Eliminates repeated boilerplate across all forkwright Rust repos:
+tracing subscriber init, typed error types, figment config loading,
+clap global arg prelude.
+
+## Key files
+
+- `src/lib.rs` — module declarations, crate-level docs
+- `src/telemetry.rs` — tracing subscriber init (`init`, `init_compact`, `init_json`, `build_filter`)
+- `src/error.rs` — `AppError`, `ConfigError`, snafu re-exports
+- `src/config.rs` — figment loader (`load`, `load_with_defaults`, `load_from_env`, `load_from_env_path`)
+- `src/cli.rs` — clap prelude (`GlobalArgs`, `Verbosity`)
+- `ADOPTION.md` — migration guide for existing forkwright repos
+
+## Conventions
+
+- All public items documented
+- No `unwrap`/`expect` in library code
+- `snafu` for error types; never `anyhow` or `thiserror`
+- `figment` for config; never raw `serde_json::from_str` for config files

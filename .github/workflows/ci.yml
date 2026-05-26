@@ -1,0 +1,59 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          persist-credentials: false
+      - uses: dtolnay/rust-toolchain@29eef336d9b2848a0b548edc03f92a220660cdb8 # 1.85
+        with:
+          toolchain: "1.85"
+          components: clippy, rustfmt
+      - uses: Swatinem/rust-cache@e18b497796c12c097a38f9edb9d0641fb99eee32 # v2.9.1
+      - name: Build
+        run: cargo build --all-targets
+      - name: Test
+        run: cargo test
+      - name: Clippy
+        run: cargo clippy --all-targets -- -D warnings
+      - name: Format
+        run: cargo fmt --check
+
+  commitlint:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Validate conventional commits
+        run: |
+          TYPES="feat|fix|refactor|chore|docs|test|ci|perf|style|build|revert"
+          failed=0
+          while IFS= read -r msg; do
+            echo "$msg" | grep -qE "^Merge " && continue
+            if ! echo "$msg" | grep -qE "^($TYPES)(\(.+\))?: .+"; then
+              echo "::error::Bad commit message: $msg"
+              echo "  Expected: <type>(<scope>): <description>"
+              echo "  Types: $TYPES"
+              failed=1
+            fi
+          done < <(git log --format='%s' "origin/${{ github.base_ref }}..HEAD")
+          exit $failed
