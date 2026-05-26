@@ -155,17 +155,18 @@ direct dependencies (`tracing-subscriber`, `figment`) from `Cargo.toml`.
 
 ## Fleet migration status
 
-| Repo | Tracing | Config | CLI | Status |
-|------|---------|--------|-----|--------|
-| hamma | migrated | — | — | done |
-| akroasis | pending | pending | pending | — |
-| aletheia | pending | pending | pending | — |
-| kanon | pending | pending | pending | — |
-| logismos | pending | pending | pending | — |
-| harmonia | pending | pending | pending | — |
-| thumos | pending | pending | pending | — |
-| epistole | pending | pending | pending | — |
-| theatron | pending | pending | pending | — |
-| dioptron | pending | pending | pending | — |
+| Repo | Tracing | Config | CLI | Status | Notes |
+|------|---------|--------|-----|--------|-------|
+| hamma | migrated | — | — | done | proof repo #1 |
+| gnomon | n/a | n/a | n/a | no Rust code | pure Python research repo; migrate when Rust crates land per BUILD-v0.8 M0 |
+| akroasis | pending | pending | pending | — | active worker; migrate in dedicated pass |
+| aletheia | pending | pending | pending | — | — |
+| kanon | pending | pending | pending | — | — |
+| logismos | pending | pending | pending | — | — |
+| harmonia | pending | pending | pending | — | — |
+| thumos | pending | pending | pending | — | — |
+| epistole | pending | pending | pending | — | — |
+| theatron | pending | pending | pending | — | — |
+| dioptron | pending | pending | pending | — | — |
 
 Update this table as migrations land.
