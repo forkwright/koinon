@@ -15,6 +15,23 @@ and a `clap` prelude for global flags.
 | `config` | `figment` loader: TOML file → env-var override → typed struct |
 | `cli` | `GlobalArgs` (`--verbose`, `--log-json`) for `clap` CLI binaries |
 
+## Feature flags
+
+`telemetry`, `config`, and `cli` are Cargo features, all on by default;
+`error` is always available. Trim the dependency tree with
+`default-features = false`:
+
+```toml
+[dependencies]
+koinon = { git = "https://github.com/forkwright/koinon", tag = "v0.1.0", default-features = false, features = ["config"] }
+```
+
+| Feature | Pulls in |
+|---------|----------|
+| `telemetry` | `tracing`, `tracing-subscriber` |
+| `config` | `figment`, `serde` |
+| `cli` | `clap` (implies `telemetry`) |
+
 ## Quick start
 
 ```toml

@@ -19,6 +19,7 @@ clap global arg prelude.
 
 ## Conventions
 
+- Cargo features: `telemetry`, `config`, `cli` (default all on; `cli` implies `telemetry`; `error` always compiled)
 - All public items documented
 - No `unwrap`/`expect` in library code
 - `snafu` for error types; never `anyhow` or `thiserror`
