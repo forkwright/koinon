@@ -29,9 +29,9 @@ use clap::Args;
 /// Verbosity level for `--verbose` / `-v` flags.
 ///
 /// Each additional `-v` increases the log level. In combination with
-/// [`GlobalArgs::init_tracing`], the effective `RUST_LOG` directive is
-/// determined by the most restrictive of the flag count and the
-/// `default_directive`.
+/// [`GlobalArgs::init_tracing`], a non-zero flag count replaces the caller's
+/// `default_directive` as the fallback filter; `RUST_LOG`, when set, takes
+/// precedence over both.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 pub enum Verbosity {
     /// Log only `error` messages.
@@ -83,8 +83,8 @@ impl Verbosity {
 /// # Environment
 ///
 /// `RUST_LOG` still takes precedence over `--verbose` flags, because
-/// [`crate::telemetry::build_filter`] reads `RUST_LOG` via `EnvFilter`.
-/// The verbosity flag sets the fallback for when `RUST_LOG` is not set.
+/// [`crate::telemetry::build_filter`] uses a set `RUST_LOG` outright and
+/// only falls back to the flag-derived directive when `RUST_LOG` is unset.
 #[derive(Args, Debug, Clone)]
 pub struct GlobalArgs {
     /// Increase log verbosity. Pass once for debug, twice for trace.
@@ -120,7 +120,11 @@ impl GlobalArgs {
         }
     }
 
-    /// Return the resolved verbosity level.
+    /// Return the verbosity level derived from the `--verbose` flag count.
+    ///
+    /// This is the fallback level used when `RUST_LOG` is unset; it does not
+    /// consult `RUST_LOG`. Filter-level resolution — where a set `RUST_LOG`
+    /// wins — happens in [`crate::telemetry::build_filter`].
     #[must_use]
     pub fn verbosity(&self) -> Verbosity {
         Verbosity::from_flag_count(self.verbose)
