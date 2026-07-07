@@ -30,6 +30,16 @@ koinon = "0.1"
 For workspaces, add to `[workspace.dependencies]` and reference via
 `koinon = { workspace = true }` in each member crate.
 
+Libraries that only need a subset can trim the dependency tree:
+
+```toml
+[dependencies]
+koinon = { git = "https://github.com/forkwright/koinon", tag = "v0.1.0", default-features = false, features = ["config"] }
+```
+
+Features: `telemetry`, `config`, `cli` (implies `telemetry`); the `error`
+module is always available.
+
 ## Step 2: Replace tracing init
 
 **Before (typical hand-rolled pattern):**
@@ -97,10 +107,12 @@ let config: AppConfig = Figment::new()
 let config: AppConfig = koinon::config::load("app.toml", "APP_")?;
 ```
 
-For a config with baked-in defaults:
+`load` requires `AppConfig: Default + Serialize` and applies `T::default()`
+as the lowest-priority layer. For defaults computed at runtime instead of
+baked into `Default`:
 
 ```rust
-let defaults = AppConfig::default();
+let defaults = AppConfig::for_environment(env);
 let config: AppConfig = koinon::config::load_with_defaults("app.toml", "APP_", &defaults)?;
 ```
 
