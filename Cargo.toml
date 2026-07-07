@@ -19,17 +19,28 @@ cli = ["dep:clap", "telemetry"]
 [dependencies]
 # Tracing (feature: telemetry)
 tracing = { version = "0.1", optional = true }
-tracing-subscriber = { version = "0.3", features = ["env-filter", "fmt", "json"], optional = true }
 
 # Error handling (always on)
 snafu = "0.8"
 
 # Config loading (feature: config)
 figment = { version = "0.10", features = ["toml", "env"], optional = true }
-serde = { version = "1", default-features = false, features = ["derive"], optional = true }
 
 # CLI prelude (feature: cli)
 clap = { version = "4", features = ["derive", "env"], optional = true }
+
+# Tracing (feature: telemetry) - expanded form: inline table exceeds 80 columns
+[dependencies.tracing-subscriber]
+version = "0.3"
+features = ["env-filter", "fmt", "json"]
+optional = true
+
+# Config loading (feature: config) - expanded form: inline table exceeds 80 columns
+[dependencies.serde]
+version = "1"
+default-features = false
+features = ["derive"]
+optional = true
 
 [dev-dependencies]
 figment = { version = "0.10", features = ["toml", "env", "test"] }

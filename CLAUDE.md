@@ -1,6 +1,7 @@
 <!--
 scope: koinon repo conventions (fleet-common scaffolding crate)
 defers_to: ~/.claude/CLAUDE.md for operator principles; kanon standards for universal engineering policy
+tightens: narrows kanon RUST.md error/config/tracing conventions to koinon's snafu-only, figment-only, no-unwrap-in-lib specifics (see Key patterns below)
 -->
 
 # CLAUDE.md

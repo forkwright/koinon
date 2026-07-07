@@ -1,6 +1,6 @@
 # koinon
 
-κοινόν — fleet-common Rust scaffolding for forkwright crates.
+κοινόν - fleet-common Rust scaffolding for forkwright crates.
 
 Eliminates the boilerplate that every forkwright binary and library repeats:
 tracing subscriber setup, typed error bases, `figment`-backed config loading,
@@ -63,4 +63,4 @@ hand-rolled tracing init and config loading to `koinon`.
 
 ## License
 
-Apache-2.0 — see [`LICENSE`](LICENSE).
+Apache-2.0 - see [`LICENSE`](LICENSE).

@@ -89,6 +89,9 @@ use crate::error::ConfigError;
 /// assert_eq!(cfg.port, 8080);
 /// # Ok::<(), koinon::error::ConfigError>(())
 /// ```
+// WHY: genuine cross-crate API; basanos' workspace-library exemption needs a
+// [workspace] ancestor, which this standalone published crate does not have.
+// kanon:ignore RUST/pub-visibility -- documented public config-loading API
 pub fn load<T>(path: &str, env_prefix: &str) -> Result<T, ConfigError>
 where
     T: for<'de> Deserialize<'de> + Serialize + Default,
@@ -113,6 +116,9 @@ where
 /// Same taxonomy as [`load`]: [`ConfigError::Parse`],
 /// [`ConfigError::InvalidValue`], [`ConfigError::MissingKey`], or
 /// [`ConfigError::Extraction`].
+// WHY: genuine cross-crate API; basanos' workspace-library exemption needs a
+// [workspace] ancestor, which this standalone published crate does not have.
+// kanon:ignore RUST/pub-visibility -- documented public config-loading API
 pub fn load_with_defaults<T>(path: &str, env_prefix: &str, defaults: &T) -> Result<T, ConfigError>
 where
     T: for<'de> Deserialize<'de> + Serialize,
@@ -138,6 +144,9 @@ where
 /// * [`ConfigError::InvalidValue`] — a variable is set but has the wrong
 ///   type or an out-of-range value.
 /// * [`ConfigError::Extraction`] — any other figment failure.
+// WHY: genuine cross-crate API; basanos' workspace-library exemption needs a
+// [workspace] ancestor, which this standalone published crate does not have.
+// kanon:ignore RUST/pub-visibility -- documented public config-loading API
 pub fn load_from_env<T>(env_prefix: &str) -> Result<T, ConfigError>
 where
     T: for<'de> Deserialize<'de>,
@@ -164,6 +173,9 @@ where
 /// * [`ConfigError::InvalidValue`] — `path_env_var` is set but its value is
 ///   not valid UTF-8.
 /// * Otherwise the same taxonomy as [`load`].
+// WHY: genuine cross-crate API; basanos' workspace-library exemption needs a
+// [workspace] ancestor, which this standalone published crate does not have.
+// kanon:ignore RUST/pub-visibility -- documented public config-loading API
 pub fn load_from_env_path<T>(
     path_env_var: &str,
     default_path: &str,

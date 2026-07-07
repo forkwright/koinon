@@ -37,27 +37,36 @@ use tracing_subscriber::fmt;
 /// with a stderr note from `tracing-subscriber`'s lossy parser; if no valid
 /// segment remains, the filter falls back to the `EnvFilter` default
 /// (`"error"`).
+// WHY: genuine cross-crate API; basanos' workspace-library exemption needs a
+// [workspace] ancestor, which this standalone published crate does not have.
+// kanon:ignore RUST/pub-visibility -- documented public telemetry-init API
 pub fn init(default_directive: &str) {
     let filter = build_filter(default_directive);
-    let _ = fmt().with_env_filter(filter).try_init();
+    let _ = fmt().with_env_filter(filter).try_init(); // WHY: fails only if already initialized
 }
 
 /// Initialize the tracing subscriber with a `compact` formatter.
 ///
 /// Equivalent to [`init`] but uses the compact single-line format, which
 /// reduces output verbosity in long-running services.
+// WHY: genuine cross-crate API; basanos' workspace-library exemption needs a
+// [workspace] ancestor, which this standalone published crate does not have.
+// kanon:ignore RUST/pub-visibility -- documented public telemetry-init API
 pub fn init_compact(default_directive: &str) {
     let filter = build_filter(default_directive);
-    let _ = fmt().compact().with_env_filter(filter).try_init();
+    let _ = fmt().compact().with_env_filter(filter).try_init(); // WHY: fails only if already initialized
 }
 
 /// Initialize the tracing subscriber with JSON output.
 ///
-/// Useful in production services where logs are consumed by a log aggregator
-/// (Loki, Elasticsearch, etc.).
+/// Useful in production services whose structured output feeds a downstream
+/// aggregator (Loki, Elasticsearch, etc.).
+// WHY: genuine cross-crate API; basanos' workspace-library exemption needs a
+// [workspace] ancestor, which this standalone published crate does not have.
+// kanon:ignore RUST/pub-visibility -- documented public telemetry-init API
 pub fn init_json(default_directive: &str) {
     let filter = build_filter(default_directive);
-    let _ = fmt().json().with_env_filter(filter).try_init();
+    let _ = fmt().json().with_env_filter(filter).try_init(); // WHY: fails only if already initialized
 }
 
 /// Build an [`EnvFilter`] where a set `RUST_LOG` wins outright and
@@ -74,6 +83,9 @@ pub fn init_json(default_directive: &str) {
 /// Exported so callers that want to compose their own `fmt()` subscriber
 /// can still benefit from the `RUST_LOG`-with-fallback pattern.
 #[must_use]
+// WHY: genuine cross-crate API; basanos' workspace-library exemption needs a
+// [workspace] ancestor, which this standalone published crate does not have.
+// kanon:ignore RUST/pub-visibility -- documented public telemetry-filter API
 pub fn build_filter(default_directive: &str) -> EnvFilter {
     prefer_env(EnvFilter::builder().from_env_lossy(), default_directive)
 }

@@ -33,6 +33,7 @@ use clap::Args;
 /// `default_directive` as the fallback filter; `RUST_LOG`, when set, takes
 /// precedence over both.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
+#[non_exhaustive]
 pub enum Verbosity {
     /// Log only `error` messages.
     Error = 0,
@@ -105,7 +106,7 @@ impl GlobalArgs {
     /// are unset. If `--verbose` is set and `RUST_LOG` is absent, the
     /// flag count determines the level.
     ///
-    /// If `--log-json` is set, uses the JSON formatter.
+    /// If `log_json` is set, uses the JSON formatter.
     pub fn init_tracing(&self, default_directive: &str) {
         let directive = if self.verbose > 0 {
             Verbosity::from_flag_count(self.verbose).as_directive()
