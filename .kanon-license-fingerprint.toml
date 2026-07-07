@@ -1,0 +1,13 @@
+# Canonical license fingerprint metadata for MANIFEST/license-spdx-match.
+#
+# koinon is Apache-2.0 only (the verbatim, unmodified upstream Apache
+# License 2.0 text, including its APPENDIX). The kanon basanos
+# CANONICAL_HASHES table only registers "Apache-2.0 OR MIT" (theatron's
+# dual-license form), not bare "Apache-2.0", so this fingerprint file
+# declares the SHA256 of koinon's repo-root LICENSE file directly.
+#
+# Workflow: if LICENSE is updated, recompute via `sha256sum LICENSE`
+# and update the hash below.
+
+[sha256]
+LICENSE = "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"

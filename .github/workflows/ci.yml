@@ -28,12 +28,30 @@ jobs:
       - uses: Swatinem/rust-cache@e18b497796c12c097a38f9edb9d0641fb99eee32 # v2.9.1
       - name: Build
         run: cargo build --all-targets
+      - name: Feature matrix
+        run: |
+          cargo check --no-default-features
+          cargo check --no-default-features --features telemetry
+          cargo check --no-default-features --features config
+          cargo check --no-default-features --features cli
       - name: Test
         run: cargo test
       - name: Clippy
         run: cargo clippy --all-targets -- -D warnings
       - name: Format
         run: cargo fmt --check
+
+  cargo-deny:
+    name: cargo deny
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          persist-credentials: false
+      - uses: EmbarkStudios/cargo-deny-action@bb137d7af7e4fb67e5f82a49c4fce4fad40782fe # v2.0.20
+        with:
+          command: check advisories licenses bans sources
+          arguments: --all-features
 
   commitlint:
     if: github.event_name == 'pull_request'

@@ -1,6 +1,7 @@
 <!--
 scope: koinon repo conventions (fleet-common scaffolding crate)
 defers_to: ~/.claude/CLAUDE.md for operator principles; kanon standards for universal engineering policy
+tightens: narrows kanon RUST.md error/config/tracing conventions to koinon's snafu-only, figment-only, no-unwrap-in-lib specifics (see Key patterns below)
 -->
 
 # CLAUDE.md
@@ -32,7 +33,10 @@ cargo fmt --check
 ## Key patterns
 
 - **Errors**: `snafu` throughout. Library code: domain enums. Binary `main`: `AppError`.
-- **Config**: `figment` with TOML + env. No `std::env::var` calls in lib code.
+- **Config**: `figment` with TOML + env. No `std::env::var` calls in lib code
+  (sole exception: `config::load_from_env_path`'s path-variable read, whose
+  contract is that variable and which must distinguish unset from non-UTF-8 —
+  figment's `Env` cannot observe either).
 - **Tracing**: `tracing_subscriber::fmt` + `EnvFilter`. Never `println!` in lib.
 - **No `unwrap()`/`expect()` in lib code**. Tests may use `expect("msg")`.
 

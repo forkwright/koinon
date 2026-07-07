@@ -4,6 +4,44 @@ All notable changes to koinon are documented here.
 
 ## [Unreleased]
 
+### Changed
+
+- **BREAKING**: `config::load` and `config::load_from_env_path` now require
+  `T: Default + Serialize` and merge `Serialized::defaults(T::default())` as
+  the lowest-priority layer. Before: the documented defaults layer did not
+  exist and any struct with required fields failed extraction on a missing
+  file. After: missing fields fall back to `T::default()`, matching the
+  module doc. `load_from_env` keeps the no-defaults, no-`Default`-bound shape
+  for types that should not have baked-in defaults.
+- **BREAKING** (behavioral): `telemetry::build_filter` now lets a set
+  `RUST_LOG` win outright over `default_directive`. Before: the default was
+  layered via `add_directive` on top of the `RUST_LOG`-derived filter, so an
+  equal-specificity default (e.g. bare `info` vs `RUST_LOG=warn`) silently
+  clobbered the operator's env choice. After: `RUST_LOG` (parsed lossily)
+  takes precedence whenever it contributes any directive; the default applies
+  only when `RUST_LOG` is unset, empty, or entirely invalid.
+- **BREAKING** (behavioral): `config` loaders map figment failures onto the
+  full `ConfigError` taxonomy — `MissingKey` for missing fields,
+  `InvalidValue` for type/value/range failures, `Parse` for TOML syntax
+  errors in a file — instead of collapsing everything into `Extraction`.
+  `Extraction` remains the fallback for uncategorized failures. Callers
+  matching on `ConfigError::Extraction { .. }` for these cases must match the
+  specific variants.
+- `telemetry::build_filter` accepts multi-directive defaults
+  (e.g. `"my_crate=info,hyper=warn"`). Before: the whole string failed the
+  single-`Directive` parse and was silently dropped. After: segments are
+  parsed individually; invalid segments are skipped with a stderr note.
+- `config` loaders normalize `env_prefix`: `"APP"` and `"APP_"` both map
+  `APP_PORT` → `port`. Before: a bare `"APP"` left `_PORT` as the stripped
+  key and silently dropped every env override.
+- `config::load_from_env_path` returns `ConfigError::InvalidValue` when the
+  path variable is set but not valid UTF-8, instead of silently using
+  `default_path`.
+- `telemetry`, `config`, and `cli` are real Cargo features (default-on,
+  per-feature optional dependencies, cfg-gated modules), making the
+  documented `default-features = false` trimming work; `error` is always
+  available. CI checks the feature matrix.
+
 ### Added
 
 - `telemetry` module: `init`, `init_compact`, `init_json`, `build_filter`
