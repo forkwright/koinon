@@ -2,6 +2,18 @@
 
 All notable changes to koinon are documented here.
 
+## 0.1.0 (2026-07-08)
+
+
+### Features
+
+* **crate:** initial fleet-common scaffolding crate ([d8b842d](https://github.com/forkwright/koinon/commit/d8b842d61ca556349916e06efd13640d8588c52d))
+
+
+### Bug Fixes
+
+* resolve all open audit findings + build the feature matrix + Tier-U CI + lint-clean ([#8](https://github.com/forkwright/koinon/issues/8)) ([b108a8c](https://github.com/forkwright/koinon/commit/b108a8c589e54f6961086ddef3b260da7a140738))
+
 ## [Unreleased]
 
 ### Changed
