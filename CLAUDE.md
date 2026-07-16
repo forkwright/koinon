@@ -51,3 +51,27 @@ cargo fmt --check
 2. `cargo clippy -- -D warnings` passes
 3. `cargo fmt --check` passes
 4. All public items have doc comments
+
+<!-- kanon:auto-start -->
+## Generated kanon context
+
+- Registry name: `koinon`
+- Forge repo: `forkwright/koinon`
+- Kanon prefix: `ko`
+- Config source: `workflow/kanon.toml [projects.koinon]`
+- Standards source: `crates/basanos/standards/STANDARDS.md`
+- MCP routing catalog: `workflow/AGENTS-mcp-tools.md`
+
+Run `kanon docs sync --check --repo koinon` to verify this generated
+section and `kanon docs sync --apply --repo koinon` to refresh it.
+
+## Blast zone
+
+- Paths explicitly named by the rendered prompt, role, or template input.
+
+## Acceptance verifier
+
+```bash
+kanon gate
+```
+<!-- kanon:auto-end -->
