@@ -64,3 +64,28 @@ hand-rolled tracing init and config loading to `koinon`.
 ## License
 
 Apache-2.0 - see [`LICENSE`](LICENSE).
+
+<!-- kanon:auto-start -->
+## Repository Metadata
+
+- Registry name: `koinon`
+- Description: Kanon-managed forkwright repository `koinon`.
+- Forge repo: `forkwright/koinon`
+- Kanon prefix: `ko`
+- Config source: `workflow/kanon.toml [projects.koinon]`
+- Planning state: `projects/koinon/STATE.md`
+- Last state update: `not recorded`
+
+Run `kanon docs sync --check --repo koinon` to verify this generated
+section and `kanon docs sync --apply --repo koinon` to refresh it.
+
+## Blast zone
+
+- Paths explicitly named by the rendered prompt, role, or template input.
+
+## Acceptance verifier
+
+```bash
+kanon gate
+```
+<!-- kanon:auto-end -->
