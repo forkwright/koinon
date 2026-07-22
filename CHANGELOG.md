@@ -2,6 +2,14 @@
 
 All notable changes to koinon are documented here.
 
+## [0.1.1](https://github.com/forkwright/koinon/compare/v0.1.0...v0.1.1) (2026-07-22)
+
+
+### Documentation
+
+* **kanon:** regenerate missing derived CLAUDE/README sections ([#12](https://github.com/forkwright/koinon/issues/12)) ([bc5f609](https://github.com/forkwright/koinon/commit/bc5f6098a58e2bef5942afa842ed1da60b290e48))
+* **repo:** add thin AGENTS.md pointer to CLAUDE.md ([#13](https://github.com/forkwright/koinon/issues/13)) ([a671c7f](https://github.com/forkwright/koinon/commit/a671c7fe52fd061b152ba612eaa48ed231b415c8))
+
 ## 0.1.0 (2026-07-08)
 
 
