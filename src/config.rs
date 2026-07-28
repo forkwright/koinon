@@ -5,7 +5,9 @@
 //! For [`load`] and [`load_from_env_path`]:
 //!
 //! 1. Defaults from `T::default()`.
-//! 2. TOML file at `path` (if the file exists; skipped silently if absent).
+//! 2. TOML file at exactly `path` (if the file exists; skipped silently if
+//!    absent). Parent/ancestor directories are never searched — a same-named
+//!    file elsewhere in the tree is never adopted.
 //! 3. Environment variables with the given `prefix` (e.g. `APP_` maps
 //!    `APP_PORT=8080` → `{ port: 8080 }`).
 //!
@@ -41,6 +43,8 @@
 //! directory. Pass an absolute path or use [`load_from_env_path`] to pick the
 //! path from an environment variable (e.g. `APP_CONFIG=/etc/app.toml`).
 
+use std::path::Path;
+
 use figment::Figment;
 use figment::providers::{Env, Format, Serialized, Toml};
 use serde::Deserialize;
@@ -53,7 +57,8 @@ use crate::error::ConfigError;
 ///
 /// # Arguments
 ///
-/// * `path` — path to the TOML file. Silently skipped if the file does not
+/// * `path` — path to the TOML file, read at exactly this location (parent
+///   directories are never searched). Silently skipped if the file does not
 ///   exist, allowing pure-env deployments.
 /// * `env_prefix` — upper-case prefix for environment variable overrides,
 ///   with or without the trailing underscore: `"APP"` and `"APP_"` both map
@@ -207,14 +212,32 @@ where
     T: for<'de> Deserialize<'de>,
     D: Serialize,
 {
-    let figment = Figment::new()
-        .merge(Serialized::defaults(defaults))
-        .merge(Toml::file(path))
-        .merge(env);
+    let figment =
+        merge_toml_exact(Figment::new().merge(Serialized::defaults(defaults)), path).merge(env);
 
     extract(&figment)
 }
 
+// WHY: figment's Toml::file() walks the CWD and every ancestor directory
+// looking for `path`, silently loading an unrelated same-named file from a
+// parent directory when the exact target is absent from the CWD (koinon#16)
+// — directly contradicting the "resolved against the current working
+// directory" contract documented at the top of this module. Toml::file_exact
+// never searches, but it also turns a missing file into a hard error (it
+// unconditionally reads the path), which would break the documented
+// "silently skipped if absent" pure-env-deployment contract tested by
+// load_missing_file_falls_back_to_defaults. Checking existence first and
+// only merging the exact-path provider when the file is actually there
+// reproduces the original missing-file behavior while a present-but-
+// unreadable file (permissions, race) still surfaces as a typed error from
+// the read itself, instead of being silently absorbed as "not found".
+fn merge_toml_exact(figment: Figment, path: &str) -> Figment {
+    if Path::new(path).is_file() {
+        figment.merge(Toml::file_exact(path))
+    } else {
+        figment
+    }
+}
 // WHY: figment strips the literal prefix string, so a bare "APP" against
 // APP_PORT would leave "_PORT" as the key and silently drop every override;
 // normalizing to a trailing underscore makes "APP" and "APP_" equivalent.
@@ -359,6 +382,63 @@ mod tests {
         assert_eq!(cfg.port, 9090);
         assert_eq!(cfg.host, "example.com");
         assert!(cfg.debug);
+    }
+
+    #[test]
+    fn load_does_not_adopt_a_same_named_file_from_an_ancestor_directory() {
+        // WHY(koinon#16): figment's Toml::file() walks the CWD and every
+        // ancestor directory looking for `path`. A config file placed only
+        // in a PARENT of the process's CWD must not be silently ingested
+        // when the caller asks for an exact relative path that does not
+        // exist in the CWD itself — the semantics under test, not just the
+        // end value, is "was the ancestor file even consulted".
+        figment::Jail::expect_with(|jail| {
+            jail.create_file(
+                "app.toml",
+                "port = 1111\nhost = \"ancestor.example\"\ndebug = true",
+            )?;
+            jail.change_dir(jail.create_dir("child")?)?;
+
+            // `app.toml` exists only in the parent; `child/` (the CWD) has
+            // no such file.
+            let cfg: TestConfig = load("app.toml", "KOINON_NO_ANCESTOR")
+                .map_err(|e| figment::Error::from(e.to_string()))?;
+
+            // A pre-fix load() would return the ancestor's overridden
+            // values (port 1111 / "ancestor.example" / true). The fixed
+            // exact-path loader must treat the file as absent and fall
+            // through to T::default() instead.
+            assert_eq!(cfg, TestConfig::default());
+            Ok(())
+        });
+    }
+
+    #[test]
+    fn load_reads_the_exact_path_even_when_an_ancestor_has_a_decoy_file() {
+        // Companion to the ancestor-non-adoption test above: proves the CWD's
+        // own file is still read correctly (not that file loading broke
+        // entirely) even in the presence of a differently-valued ancestor
+        // file of the same name.
+        figment::Jail::expect_with(|jail| {
+            jail.create_file(
+                "app.toml",
+                "port = 1111\nhost = \"ancestor.example\"\ndebug = false",
+            )?;
+            let child = jail.create_dir("child")?;
+            jail.change_dir(&child)?;
+            jail.create_file(
+                "app.toml",
+                "port = 2222\nhost = \"child.example\"\ndebug = true",
+            )?;
+
+            let cfg: TestConfig = load("app.toml", "KOINON_EXACT_PATH")
+                .map_err(|e| figment::Error::from(e.to_string()))?;
+
+            assert_eq!(cfg.port, 2222);
+            assert_eq!(cfg.host, "child.example");
+            assert!(cfg.debug);
+            Ok(())
+        });
     }
 
     #[test]
