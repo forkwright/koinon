@@ -2,6 +2,14 @@
 
 All notable changes to koinon are documented here.
 
+## [0.1.2](https://github.com/forkwright/koinon/compare/v0.1.1...v0.1.2) (2026-07-28)
+
+
+### Bug Fixes
+
+* **config:** read the exact config path instead of searching ancestors ([#23](https://github.com/forkwright/koinon/issues/23)) ([04367a6](https://github.com/forkwright/koinon/commit/04367a6b414728afd9b03e86016230198ed6ea34)), closes [#16](https://github.com/forkwright/koinon/issues/16)
+* **config:** stop load_from_env_path ingesting its own path selector ([#21](https://github.com/forkwright/koinon/issues/21)) ([5fcb40b](https://github.com/forkwright/koinon/commit/5fcb40b797eb87ec9d00411b61ac6cef53f988e4)), closes [#17](https://github.com/forkwright/koinon/issues/17)
+
 ## [0.1.1](https://github.com/forkwright/koinon/compare/v0.1.0...v0.1.1) (2026-07-22)
 
 
