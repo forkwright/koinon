@@ -96,12 +96,7 @@ pub fn load<T>(path: &str, env_prefix: &str) -> Result<T, ConfigError>
 where
     T: for<'de> Deserialize<'de> + Serialize + Default,
 {
-    let figment = Figment::new()
-        .merge(Serialized::defaults(T::default()))
-        .merge(Toml::file(path))
-        .merge(env_layer(env_prefix));
-
-    extract(&figment)
+    load_figment(path, T::default(), env_layer(env_prefix))
 }
 
 /// Load a typed configuration with explicit defaults.
@@ -123,12 +118,7 @@ pub fn load_with_defaults<T>(path: &str, env_prefix: &str, defaults: &T) -> Resu
 where
     T: for<'de> Deserialize<'de> + Serialize,
 {
-    let figment = Figment::new()
-        .merge(Serialized::defaults(defaults))
-        .merge(Toml::file(path))
-        .merge(env_layer(env_prefix));
-
-    extract(&figment)
+    load_figment(path, defaults, env_layer(env_prefix))
 }
 
 /// Load a typed configuration from environment variables only.
@@ -198,22 +188,69 @@ where
             });
         }
     };
-    load(&path, env_prefix)
+    // WHY: path_env_var is a control-plane selector, not application data —
+    // delegating to plain env_layer(env_prefix) would re-ingest it as a
+    // same-named config key whenever it falls under env_prefix (koinon#17).
+    load_figment(
+        &path,
+        T::default(),
+        env_layer_excluding(env_prefix, path_env_var),
+    )
 }
 
 // ---------------------------------------------------------------------------
 // Internal helpers
 // ---------------------------------------------------------------------------
 
+fn load_figment<T, D>(path: &str, defaults: D, env: Env) -> Result<T, ConfigError>
+where
+    T: for<'de> Deserialize<'de>,
+    D: Serialize,
+{
+    let figment = Figment::new()
+        .merge(Serialized::defaults(defaults))
+        .merge(Toml::file(path))
+        .merge(env);
+
+    extract(&figment)
+}
+
 // WHY: figment strips the literal prefix string, so a bare "APP" against
 // APP_PORT would leave "_PORT" as the key and silently drop every override;
 // normalizing to a trailing underscore makes "APP" and "APP_" equivalent.
-fn env_layer(env_prefix: &str) -> Env {
+fn normalized_prefix(env_prefix: &str) -> String {
     if env_prefix.is_empty() || env_prefix.ends_with('_') {
-        Env::prefixed(env_prefix).split("__")
+        env_prefix.to_string()
     } else {
-        Env::prefixed(&format!("{env_prefix}_")).split("__")
+        format!("{env_prefix}_")
     }
+}
+
+fn env_layer(env_prefix: &str) -> Env {
+    Env::prefixed(&normalized_prefix(env_prefix)).split("__")
+}
+
+// WHY: `load_from_env_path`'s path selector and its data prefix share one
+// process-wide env namespace; when path_env_var falls under env_prefix,
+// exclude it from the data layer instead of letting it double as both the
+// file selector and a same-named config key (koinon#17).
+fn env_layer_excluding(env_prefix: &str, path_env_var: &str) -> Env {
+    let prefix = normalized_prefix(env_prefix);
+    let env = Env::prefixed(&prefix);
+    let env = match strip_prefix_ci(&prefix, path_env_var) {
+        Some(key) if !key.is_empty() => env.ignore(&[key]),
+        _ => env,
+    };
+    env.split("__")
+}
+
+// WHY: figment's Env compares keys case-insensitively after stripping the
+// prefix; `.get()` (not direct indexing) avoids a panic if `prefix.len()`
+// does not land on a char boundary of `value`.
+fn strip_prefix_ci<'a>(prefix: &str, value: &'a str) -> Option<&'a str> {
+    let head = value.get(..prefix.len())?;
+    head.eq_ignore_ascii_case(prefix)
+        .then_some(&value[prefix.len()..])
 }
 
 fn extract<T>(figment: &Figment) -> Result<T, ConfigError>
@@ -462,5 +499,60 @@ mod tests {
             }
             other => panic!("expected Parse, got {other:?}"),
         }
+    }
+
+    #[test]
+    fn load_from_env_path_selector_does_not_leak_into_config_field() {
+        // The documented pairing path_env_var="KOINON_SELECTOR_CONFIG",
+        // env_prefix="KOINON_SELECTOR" strips to data key "config" — exactly
+        // the field name a target struct is likely to have. The selector
+        // must select the file, not also overwrite that field.
+        #[derive(Debug, Deserialize, Serialize, Default)]
+        struct ConfigFieldTarget {
+            config: String,
+            marker: bool,
+        }
+
+        figment::Jail::expect_with(|jail| {
+            jail.create_file("selected.toml", "config = \"from-file\"\nmarker = true")?;
+            jail.set_env("KOINON_SELECTOR_CONFIG", "selected.toml");
+
+            let cfg: ConfigFieldTarget = load_from_env_path(
+                "KOINON_SELECTOR_CONFIG",
+                "unused-default.toml",
+                "KOINON_SELECTOR",
+            )
+            .map_err(|e| figment::Error::from(e.to_string()))?;
+
+            assert_eq!(cfg.config, "from-file");
+            assert!(cfg.marker);
+            Ok(())
+        });
+    }
+
+    #[test]
+    fn load_from_env_path_selector_does_not_trip_deny_unknown_fields() {
+        // A target with no `config` field and deny_unknown_fields must not
+        // reject the selector variable as an unexpected key.
+        #[derive(Debug, Deserialize, Serialize, Default)]
+        #[serde(deny_unknown_fields)]
+        struct StrictTarget {
+            marker: bool,
+        }
+
+        figment::Jail::expect_with(|jail| {
+            jail.create_file("strict.toml", "marker = true")?;
+            jail.set_env("KOINON_STRICT_CONFIG", "strict.toml");
+
+            let cfg: StrictTarget = load_from_env_path(
+                "KOINON_STRICT_CONFIG",
+                "unused-default.toml",
+                "KOINON_STRICT",
+            )
+            .map_err(|e| figment::Error::from(e.to_string()))?;
+
+            assert!(cfg.marker);
+            Ok(())
+        });
     }
 }
