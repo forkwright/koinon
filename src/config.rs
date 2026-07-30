@@ -268,12 +268,12 @@ fn env_layer_excluding(env_prefix: &str, path_env_var: &str) -> Env {
 }
 
 // WHY: figment's Env compares keys case-insensitively after stripping the
-// prefix; `.get()` (not direct indexing) avoids a panic if `prefix.len()`
-// does not land on a char boundary of `value`.
+// prefix; `split_at_checked` yields both halves under one bounds-and-boundary
+// test, so the remainder cannot be sliced with an index the check did not
+// already prove valid.
 fn strip_prefix_ci<'a>(prefix: &str, value: &'a str) -> Option<&'a str> {
-    let head = value.get(..prefix.len())?;
-    head.eq_ignore_ascii_case(prefix)
-        .then_some(&value[prefix.len()..])
+    let (head, rest) = value.split_at_checked(prefix.len())?;
+    head.eq_ignore_ascii_case(prefix).then_some(rest)
 }
 
 fn extract<T>(figment: &Figment) -> Result<T, ConfigError>
@@ -579,6 +579,33 @@ mod tests {
             }
             other => panic!("expected Parse, got {other:?}"),
         }
+    }
+
+    #[test]
+    fn strip_prefix_ci_matches_case_insensitively_and_returns_the_remainder() {
+        assert_eq!(strip_prefix_ci("KOINON_", "koinon_config"), Some("config"));
+        assert_eq!(strip_prefix_ci("koinon_", "KOINON_CONFIG"), Some("CONFIG"));
+        assert_eq!(strip_prefix_ci("", "KOINON_CONFIG"), Some("KOINON_CONFIG"));
+        assert_eq!(strip_prefix_ci("KOINON_", "KOINON_"), Some(""));
+    }
+
+    #[test]
+    fn strip_prefix_ci_returns_none_for_a_non_match_or_short_value() {
+        assert_eq!(strip_prefix_ci("KOINON_", "OTHER_CONFIG"), None);
+        assert_eq!(strip_prefix_ci("KOINON_", "KOI"), None);
+    }
+
+    #[test]
+    fn strip_prefix_ci_returns_none_when_the_prefix_length_splits_a_char() {
+        // WHY: env_prefix reaches this helper unvalidated, so prefix.len() is a
+        // byte count that can land inside a multi-byte char of value. "aéb" has
+        // boundaries at 0, 1, 3, 4 — so a 2-byte prefix splits "é". Slicing at
+        // that index panics; the boundary check must reject it instead.
+        assert_eq!("é".len(), 2);
+        assert_eq!(strip_prefix_ci("ab", "aéb"), None);
+        // Positive control at the next valid boundary, so the None above is
+        // attributable to the split and not to a prefix mismatch.
+        assert_eq!(strip_prefix_ci("aé", "aéb"), Some("b"));
     }
 
     #[test]
