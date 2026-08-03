@@ -2,6 +2,13 @@
 
 All notable changes to koinon are documented here.
 
+## [0.1.3](https://github.com/forkwright/koinon/compare/v0.1.2...v0.1.3) (2026-08-03)
+
+
+### Bug Fixes
+
+* **config:** make the prefix-split boundary structural, not documented ([#24](https://github.com/forkwright/koinon/issues/24)) ([856987e](https://github.com/forkwright/koinon/commit/856987e34c0419ecb7e944fe8bbbc5b79a3eab78))
+
 ## [0.1.2](https://github.com/forkwright/koinon/compare/v0.1.1...v0.1.2) (2026-07-28)
 
 
