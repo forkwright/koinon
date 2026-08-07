@@ -23,7 +23,7 @@ and a `clap` prelude for global flags.
 
 ```toml
 [dependencies]
-koinon = { git = "https://github.com/forkwright/koinon", tag = "v0.1.0", default-features = false, features = ["config"] }
+koinon = { git = "https://github.com/forkwright/koinon", tag = "v0.1.3", default-features = false, features = ["config"] }
 ```
 
 | Feature | Pulls in |
@@ -36,7 +36,7 @@ koinon = { git = "https://github.com/forkwright/koinon", tag = "v0.1.0", default
 
 ```toml
 [dependencies]
-koinon = { git = "https://github.com/forkwright/koinon", tag = "v0.1.0" }
+koinon = { git = "https://github.com/forkwright/koinon", tag = "v0.1.3" }
 ```
 
 ```rust
