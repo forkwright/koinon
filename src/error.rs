@@ -3,9 +3,42 @@
 //! # Pattern
 //!
 //! Library crates define their own domain-specific error enums with `snafu`.
-//! Binary crates additionally use [`AppError`] as the top-level `main`
-//! return type to wrap initialization errors (tracing, config, signal
-//! handlers) that do not belong to any domain-specific error.
+//! Binary crates with no domain errors of their own can return
+//! [`AppError`] directly from `main` to wrap initialization failures
+//! (config loading, argument parsing) that precede any domain-specific
+//! work.
+//!
+//! [`AppError`] is `#[non_exhaustive]` — a downstream crate cannot add a
+//! variant to it. Binary crates that do have domain errors keep their own
+//! top-level error enum and wrap koinon's component errors into it, the
+//! same way any consumer-owned `snafu` enum wraps a source (see
+//! [`ConfigError`] below):
+//!
+//! ```rust
+//! use koinon::error::{ConfigError, ResultExt, Snafu};
+//!
+//! #[derive(Debug, Snafu)]
+//! enum MainError {
+//!     #[snafu(display("config: {source}"))]
+//!     Config { source: ConfigError },
+//!     #[snafu(display("domain: {source}"))]
+//!     Domain { source: WidgetError },
+//! }
+//!
+//! #[derive(Debug, Snafu)]
+//! #[snafu(display("widget failure"))]
+//! struct WidgetError;
+//!
+//! fn run() -> Result<(), MainError> {
+//!     let result: Result<(), WidgetError> = WidgetSnafu.fail();
+//!     result.context(DomainSnafu)?;
+//!     Ok(())
+//! }
+//!
+//! use std::error::Error as _;
+//! let err = run().unwrap_err();
+//! assert!(err.source().is_some(), "domain error stays in the source chain");
+//! ```
 //!
 //! # Re-exports
 //!
@@ -27,15 +60,19 @@
 
 pub use snafu::{Location, ResultExt, Snafu, ensure, whatever};
 
-/// Top-level error for binary `main` functions.
+/// Top-level error for binary `main` functions that have no
+/// domain-specific errors of their own.
 ///
 /// Wraps the two most common initialization failures (config loading,
 /// argument parsing) that precede any domain-specific work. Returned as
 /// `Box<dyn std::error::Error>` would hide variant structure; use this
 /// typed enum instead.
 ///
-/// Domain errors belong in the domain crate, not here. If a domain error
-/// needs to surface in `main`, add a variant and a `From` impl.
+/// `AppError` is `#[non_exhaustive]`, so a downstream crate cannot add a
+/// variant to it. A binary with its own domain errors should define its
+/// own top-level error enum and wrap koinon's component errors (such as
+/// [`ConfigError`]) into it instead of trying to route a domain error
+/// through `AppError` — see the module-level example above.
 #[derive(Debug, Snafu)]
 #[non_exhaustive]
 pub enum AppError {
