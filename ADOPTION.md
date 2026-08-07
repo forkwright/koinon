@@ -7,7 +7,9 @@ forkwright Rust crate or workspace.
 
 Adopt `koinon` when a crate has any of:
 - Hand-rolled `tracing_subscriber::fmt().with_env_filter(...).init()` blocks
-- Custom `AppError` / startup error enums that duplicate `koinon::error::AppError`
+- A startup-error enum with no domain errors of its own (replace it with
+  `koinon::error::AppError`), or one that hand-rolls config-loading errors
+  instead of wrapping `koinon::error::ConfigError`
 - Direct `serde` + file reads for config (replace with `koinon::config::load`)
 - `clap` structs that duplicate `--verbose` / log-level args
 
@@ -121,8 +123,8 @@ uses figment APIs beyond what `koinon::config` exposes.
 
 ## Step 4: Use koinon error types (binary crates)
 
-If a binary's `main` function returns its own startup-error enum,
-migrate it to `AppError`:
+Binaries with **no domain-specific errors of their own** can return
+`koinon::error::AppError` directly from `main`:
 
 **Before:**
 
@@ -141,7 +143,31 @@ enum MainError {
 ```rust
 use koinon::error::AppError;
 // AppError::Config, AppError::Startup, AppError::Argument are provided.
-// For domain errors, keep the domain crate's own enum and add a From impl.
+```
+
+Binaries that **do** have domain-specific errors keep their own top-level
+enum instead of replacing it with `AppError`, and wrap koinon's component
+errors into it the same way any consumer-owned `snafu` enum wraps a
+source. `AppError` is `#[non_exhaustive]`, so a downstream crate cannot
+add a domain variant to it:
+
+```rust
+use koinon::error::{ConfigError, ResultExt, Snafu};
+
+#[derive(Debug, Snafu)]
+enum MainError {
+    #[snafu(display("config: {source}"))]
+    Config { source: ConfigError },
+    #[snafu(display("domain: {source}"))]
+    Domain { source: MyDomainError },
+}
+
+fn run() -> Result<(), MainError> {
+    let config: AppConfig = koinon::config::load("app.toml", "APP_")
+        .context(ConfigSnafu)?;
+    do_domain_work(&config).context(DomainSnafu)?;
+    Ok(())
+}
 ```
 
 Library crates keep their own `snafu` error enums but can import the

@@ -32,7 +32,9 @@ cargo fmt --check
 
 ## Key patterns
 
-- **Errors**: `snafu` throughout. Library code: domain enums. Binary `main`: `AppError`.
+- **Errors**: `snafu` throughout. Library code: domain enums. Binary `main` with no
+  domain errors of its own: `AppError`. A binary that does have domain errors keeps
+  its own top-level enum and wraps koinon's component errors into it instead.
 - **Config**: `figment` with TOML + env. No `std::env::var` calls in lib code
   (sole exception: `config::load_from_env_path`'s path-variable read, whose
   contract is that variable and which must distinguish unset from non-UTF-8 —
