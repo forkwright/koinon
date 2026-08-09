@@ -19,7 +19,7 @@ In `Cargo.toml`:
 
 ```toml
 [dependencies]
-koinon = { git = "https://github.com/forkwright/koinon", tag = "v0.1.0" }
+koinon = { git = "https://github.com/forkwright/koinon", tag = "v0.1.3" }
 ```
 
 Once koinon is published to crates.io:
@@ -36,7 +36,7 @@ Libraries that only need a subset can trim the dependency tree:
 
 ```toml
 [dependencies]
-koinon = { git = "https://github.com/forkwright/koinon", tag = "v0.1.0", default-features = false, features = ["config"] }
+koinon = { git = "https://github.com/forkwright/koinon", tag = "v0.1.3", default-features = false, features = ["config"] }
 ```
 
 Features: `telemetry`, `config`, `cli` (implies `telemetry`); the `error`
