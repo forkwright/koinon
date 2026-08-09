@@ -17,10 +17,12 @@ Adopt `koinon` when a crate has any of:
 
 In `Cargo.toml`:
 
+<!-- x-release-please-start-version -->
 ```toml
 [dependencies]
 koinon = { git = "https://github.com/forkwright/koinon", tag = "v0.1.3" }
 ```
+<!-- x-release-please-end-version -->
 
 Once koinon is published to crates.io:
 
@@ -34,10 +36,12 @@ For workspaces, add to `[workspace.dependencies]` and reference via
 
 Libraries that only need a subset can trim the dependency tree:
 
+<!-- x-release-please-start-version -->
 ```toml
 [dependencies]
 koinon = { git = "https://github.com/forkwright/koinon", tag = "v0.1.3", default-features = false, features = ["config"] }
 ```
+<!-- x-release-please-end-version -->
 
 Features: `telemetry`, `config`, `cli` (implies `telemetry`); the `error`
 module is always available.

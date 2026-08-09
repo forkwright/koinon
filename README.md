@@ -21,10 +21,12 @@ and a `clap` prelude for global flags.
 `error` is always available. Trim the dependency tree with
 `default-features = false`:
 
+<!-- x-release-please-start-version -->
 ```toml
 [dependencies]
 koinon = { git = "https://github.com/forkwright/koinon", tag = "v0.1.3", default-features = false, features = ["config"] }
 ```
+<!-- x-release-please-end-version -->
 
 | Feature | Pulls in |
 |---------|----------|
@@ -34,10 +36,12 @@ koinon = { git = "https://github.com/forkwright/koinon", tag = "v0.1.3", default
 
 ## Quick start
 
+<!-- x-release-please-start-version -->
 ```toml
 [dependencies]
 koinon = { git = "https://github.com/forkwright/koinon", tag = "v0.1.3" }
 ```
+<!-- x-release-please-end-version -->
 
 ```rust
 use clap::Parser;
