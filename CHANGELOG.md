@@ -2,6 +2,15 @@
 
 All notable changes to koinon are documented here.
 
+## [0.1.4](https://github.com/forkwright/koinon/compare/v0.1.3...v0.1.4) (2026-08-09)
+
+
+### Bug Fixes
+
+* **docs:** pin README and ADOPTION dependency examples to v0.1.3 ([#30](https://github.com/forkwright/koinon/issues/30)) ([4f59847](https://github.com/forkwright/koinon/commit/4f59847994684c666f0fe4bb1f47faf2a93ea424)), closes [#27](https://github.com/forkwright/koinon/issues/27)
+* **error:** correct AppError guidance to a consumer-owned wrapper enum ([#29](https://github.com/forkwright/koinon/issues/29)) ([595aef9](https://github.com/forkwright/koinon/commit/595aef97fb8da2633e9c9be910df0aee69a4f03d)), closes [#18](https://github.com/forkwright/koinon/issues/18)
+* **release:** let release-please bump the doc pins its guard requires ([#32](https://github.com/forkwright/koinon/issues/32)) ([7873d83](https://github.com/forkwright/koinon/commit/7873d837ed5d878afcdf162a845af68a90bdf8ef)), closes [#27](https://github.com/forkwright/koinon/issues/27)
+
 ## [0.1.3](https://github.com/forkwright/koinon/compare/v0.1.2...v0.1.3) (2026-08-03)
 
 

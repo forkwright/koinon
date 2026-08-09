@@ -1,7 +1,7 @@
 [package]
 name = "koinon"
 description = "κοινόν — fleet-common Rust scaffolding: tracing init, typed errors, config loading, clap prelude"
-version = "0.1.3"
+version = "0.1.4"
 edition = "2024"
 rust-version = "1.85"
 license = "Apache-2.0"
