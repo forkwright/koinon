@@ -2,6 +2,20 @@
 
 All notable changes to koinon are documented here.
 
+## [0.2.0](https://github.com/forkwright/koinon/compare/v0.1.4...v0.2.0) (2026-08-16)
+
+
+### Features
+
+* **adoption:** derive fleet migration status instead of hand-maintaining it ([#36](https://github.com/forkwright/koinon/issues/36)) ([4895c76](https://github.com/forkwright/koinon/commit/4895c76ee9dde0d660538b1c373abd9057905816))
+* **bootstrap:** define koinon as one integrated application-bootstrap sequence ([#35](https://github.com/forkwright/koinon/issues/35)) ([3605b17](https://github.com/forkwright/koinon/commit/3605b17ad401e2090321e04c0f0bedb2b2313656))
+
+
+### Bug Fixes
+
+* **adoption:** pin the default-feature set to what the manifest declares ([#37](https://github.com/forkwright/koinon/issues/37)) ([1f230e6](https://github.com/forkwright/koinon/commit/1f230e68e88166c301f9056458704ae8955585f6))
+* **ci:** run CI on a pull request whose base is not main ([#33](https://github.com/forkwright/koinon/issues/33)) ([da65409](https://github.com/forkwright/koinon/commit/da65409ce5667c6901e820777c6770fd1f7be78c))
+
 ## [0.1.4](https://github.com/forkwright/koinon/compare/v0.1.3...v0.1.4) (2026-08-09)
 
 
