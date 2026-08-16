@@ -242,18 +242,39 @@ direct dependencies (`tracing-subscriber`, `figment`) from `Cargo.toml`.
 
 ## Fleet migration status
 
-| Repo | Tracing | Config | CLI | Status | Notes |
-|------|---------|--------|-----|--------|-------|
-| hamma | migrated | — | — | done | proof repo #1 |
-| gnomon | n/a | n/a | n/a | no Rust code | pure Python research repo; migrate when Rust crates land per BUILD-v0.8 M0 |
-| akroasis | pending | pending | pending | — | active worker; migrate in dedicated pass |
-| aletheia | pending | pending | pending | — | — |
-| kanon | pending | pending | pending | — | — |
-| logismos | pending | pending | pending | — | — |
-| harmonia | pending | pending | pending | — | — |
-| thumos | pending | pending | pending | — | — |
-| epistole | pending | pending | pending | — | — |
-| theatron | pending | pending | pending | — | — |
-| dioptron | pending | pending | pending | — | — |
+Derived, not hand-maintained. Every row below is computed by cloning the
+tracked repo's default branch and reading its own `Cargo.toml` / `Cargo.lock`
+— never inferred from a repo's name, README, or a prior run's row. See
+`adoption/README.md` for the mechanism and `adoption/registry.toml` for the
+tracked-repo list (adding or removing a repo there changes what gets
+reported; it asserts nothing about any repo's adoption state itself).
 
-Update this table as migrations land.
+Regenerate with `koinon-adoption derive` (run automatically by
+`.github/workflows/adoption-refresh.yml`). Never hand-edit the block below —
+`.github/workflows/ci.yml`'s `adoption` job runs `koinon-adoption check` on
+every push/PR and fails when the block is hand-edited, drifted from
+`registry.toml`, or older than 14 days.
+
+<!-- koinon-adoption:generated:start -->
+| Repo | Dependency | Features | Consumer reference | Source SHA | Observed (UTC) |
+|------|-----------|----------|---------------------|-----------|------------------|
+| hamma | resolved | cli, config, telemetry | `crates/dictyon/examples/connect.rs:16` (`koinon::telemetry`) | `4358b47d20` | 2026-08-16T01:54:27Z |
+| gnomon | not adopted | — | — | `0e1d71258b` | 2026-08-16T01:54:27Z |
+| akroasis | not adopted (local homonym only) | — | — | `3e488e0b17` | 2026-08-16T01:54:27Z |
+| aletheia | not adopted | — | — | `1cc7604148` | 2026-08-16T01:54:27Z |
+| kanon | not adopted | — | — | `0ea101e811` | 2026-08-16T01:54:27Z |
+| logismos | not adopted | — | — | `5d0c4ddb10` | 2026-08-16T01:54:27Z |
+| harmonia | not adopted | — | — | `1f7a1cfdec` | 2026-08-16T01:54:27Z |
+| thumos | not adopted | — | — | `e1e66db98c` | 2026-08-16T01:54:27Z |
+| epistole | not adopted | — | — | `3e7154d5fd` | 2026-08-16T01:54:27Z |
+| theatron | not adopted | — | — | `9906675f3d` | 2026-08-16T01:54:27Z |
+| dioptron | not adopted | — | — | `ee954441e1` | 2026-08-16T01:54:27Z |
+<!-- koinon-adoption:generated:end -->
+
+Column meanings: **Dependency** is Cargo.lock's own resolution of the
+dependency edge (see `adoption/src/koinon_adoption/cargo.py` for how a
+same-named *local* crate in a consumer's own workspace — a real case,
+verified against `forkwright/akroasis`'s `crates/koinon` — is distinguished
+from this crate). **Features** and **Consumer reference** are populated only
+when Dependency is `resolved`; a `not adopted (local homonym only)` or
+`unobserved` row cannot support either claim, and never shows one.

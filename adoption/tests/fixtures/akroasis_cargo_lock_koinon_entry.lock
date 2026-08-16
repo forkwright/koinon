@@ -1,0 +1,25 @@
+# Captured verbatim from forkwright/akroasis Cargo.lock. No `source` key —
+# Cargo never records one for a workspace-member (path) package, which is
+# the mechanical fact this whole tool leans on to tell akroasis's local
+# `crates/koinon` (κοινόν — unrelated "common/shared types for the Akroasis
+# workspace", standards/substrate.toml id="koinon" WHY note, kanon#3030)
+# apart from the real forkwright/koinon dependency.
+[[package]]
+name = "koinon"
+version = "0.1.23"
+dependencies = [
+ "blake3",
+ "ciborium",
+ "compact_str",
+ "jiff",
+ "proptest",
+ "serde",
+ "serde_json",
+ "snafu",
+ "subtle",
+ "tempfile",
+ "toml 1.1.4+spec-1.1.0",
+ "tracing",
+ "ulid",
+ "zeroize",
+]

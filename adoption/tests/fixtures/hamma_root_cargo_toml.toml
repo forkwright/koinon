@@ -1,0 +1,28 @@
+# Captured from forkwright/hamma Cargo.toml (workspace root) — real content,
+# trimmed of unrelated dependency entries for fixture size. Confirms the
+# real-world shape: a virtual workspace manifest (no [package] table) whose
+# `[workspace.dependencies].koinon` is the resolution target every member's
+# `koinon = { workspace = true }` reaches.
+[workspace]
+resolver = "2"
+members = [
+    "crates/dictyon",
+    "crates/mitos",
+]
+
+[workspace.package]
+version = "0.2.0"
+edition = "2024"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/forkwright/hamma"
+rust-version = "1.88"
+
+[workspace.dependencies]
+# Fleet scaffolding
+koinon = { git = "https://github.com/forkwright/koinon", tag = "v0.1.0" }
+
+# Error handling
+snafu = "0.9"
+
+# Local workspace crates
+mitos = { path = "crates/mitos", version = "0.2.0" }

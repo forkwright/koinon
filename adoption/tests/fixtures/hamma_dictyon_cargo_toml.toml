@@ -1,0 +1,27 @@
+# Captured verbatim from forkwright/hamma crates/dictyon/Cargo.toml.
+# koinon is a DEV-dependency here (backs the `examples/connect.rs` demo, not
+# the dictyon library) — this is exactly why cargo.py checks
+# [dev-dependencies], not only [dependencies]: excluding it would make the
+# tool disagree with Cargo.lock's own resolution for the one repo issue #19
+# cites as its adoption evidence.
+[package]
+name = "dictyon"
+description = "Clean-room Rust Tailscale-compatible mesh networking client"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+mitos = { workspace = true }
+snafu = { workspace = true }
+tracing = { workspace = true }
+
+[dev-dependencies]
+proptest = { workspace = true }
+rcgen = "0.13"
+koinon = { workspace = true }
+
+[lints]
+workspace = true

@@ -1,1 +1,9 @@
 /target
+
+# adoption/ (Python tool)
+adoption/.venv
+adoption/__pycache__
+adoption/**/__pycache__
+adoption/.pytest_cache
+adoption/.ruff_cache
+adoption/.mypy_cache

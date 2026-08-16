@@ -1,0 +1,56 @@
+[project]
+name = "koinon-adoption"
+version = "0.1.0"
+description = "Derives koinon's fleet-adoption facts; replaces the hand-maintained ADOPTION.md matrix (forkwright/koinon#19)"
+requires-python = ">=3.13"
+dependencies = []
+
+[project.scripts]
+koinon-adoption = "koinon_adoption.cli:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/koinon_adoption"]
+
+[dependency-groups]
+dev = ["mypy>=1.14", "pytest>=8.3", "ruff>=0.16"]
+
+[tool.ruff]
+target-version = "py313"
+line-length = 100
+
+[tool.ruff.lint]
+select = [
+    "F",   # pyflakes
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "I",   # isort
+    "N",   # pep8-naming
+    "UP",  # pyupgrade
+    "B",   # flake8-bugbear
+    "SIM", # flake8-simplify
+    "PTH", # flake8-use-pathlib
+    "C4",  # flake8-comprehensions
+    "RET", # flake8-return
+    "TC",  # flake8-type-checking
+    # ruff-specific rules. WHY no inline comment on the line below: a
+    # `#`-terminated final array element defeats basanos's
+    # TOML/missing-trailing-comma check even with a real trailing comma
+    # present (verified against a minimal reproduction; kanon#3480) — this
+    # is the workaround, not a style choice.
+    "RUF",
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["koinon_adoption"]
+
+[tool.mypy]
+python_version = "3.13"
+strict = true
+files = ["src", "tests"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

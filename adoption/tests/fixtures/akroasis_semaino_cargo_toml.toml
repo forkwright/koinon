@@ -1,0 +1,23 @@
+# Captured verbatim from forkwright/akroasis crates/semaino/Cargo.toml.
+[package]
+name = "semaino"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[dependencies]
+koinon = { path = "../koinon" }
+serde = { workspace = true }
+tokio = { workspace = true }
+snafu = { workspace = true }
+tracing = { workspace = true }
+jiff = { workspace = true }
+ulid = { workspace = true }
+
+[dev-dependencies]
+tokio = { workspace = true, features = ["test-util"] }
+toml = { workspace = true }
+
+[lints]
+workspace = true
