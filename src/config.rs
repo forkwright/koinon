@@ -385,6 +385,10 @@ mod tests {
     }
 
     #[test]
+    #[expect(
+        clippy::result_large_err,
+        reason = "figment::Jail::expect_with fixes the closure's Err type to figment::Error, a third-party type this crate does not own and cannot box at the API boundary"
+    )]
     fn load_does_not_adopt_a_same_named_file_from_an_ancestor_directory() {
         // WHY(koinon#16): figment's Toml::file() walks the CWD and every
         // ancestor directory looking for `path`. A config file placed only
@@ -414,6 +418,10 @@ mod tests {
     }
 
     #[test]
+    #[expect(
+        clippy::result_large_err,
+        reason = "figment::Jail::expect_with fixes the closure's Err type to figment::Error, a third-party type this crate does not own and cannot box at the API boundary"
+    )]
     fn load_reads_the_exact_path_even_when_an_ancestor_has_a_decoy_file() {
         // Companion to the ancestor-non-adoption test above: proves the CWD's
         // own file is still read correctly (not that file loading broke
@@ -502,6 +510,10 @@ mod tests {
     }
 
     #[test]
+    #[expect(
+        clippy::result_large_err,
+        reason = "figment::Jail::expect_with fixes the closure's Err type to figment::Error, a third-party type this crate does not own and cannot box at the API boundary"
+    )]
     fn env_override_with_bare_prefix() {
         figment::Jail::expect_with(|jail| {
             jail.set_env("KOINON_BARE_PORT", "9191");
@@ -518,6 +530,10 @@ mod tests {
     }
 
     #[test]
+    #[expect(
+        clippy::result_large_err,
+        reason = "figment::Jail::expect_with fixes the closure's Err type to figment::Error, a third-party type this crate does not own and cannot box at the API boundary"
+    )]
     fn env_override_with_trailing_underscore_prefix() {
         figment::Jail::expect_with(|jail| {
             jail.set_env("KOINON_UND_PORT", "9292");
@@ -534,6 +550,10 @@ mod tests {
     }
 
     #[test]
+    #[expect(
+        clippy::result_large_err,
+        reason = "figment::Jail::expect_with fixes the closure's Err type to figment::Error, a third-party type this crate does not own and cannot box at the API boundary"
+    )]
     fn env_overrides_file_overrides_defaults() {
         figment::Jail::expect_with(|jail| {
             jail.create_file("app.toml", "port = 9090\nhost = \"file.example\"")?;
@@ -609,6 +629,10 @@ mod tests {
     }
 
     #[test]
+    #[expect(
+        clippy::result_large_err,
+        reason = "figment::Jail::expect_with fixes the closure's Err type to figment::Error, a third-party type this crate does not own and cannot box at the API boundary"
+    )]
     fn load_from_env_path_selector_does_not_leak_into_config_field() {
         // The documented pairing path_env_var="KOINON_SELECTOR_CONFIG",
         // env_prefix="KOINON_SELECTOR" strips to data key "config" — exactly
@@ -638,6 +662,10 @@ mod tests {
     }
 
     #[test]
+    #[expect(
+        clippy::result_large_err,
+        reason = "figment::Jail::expect_with fixes the closure's Err type to figment::Error, a third-party type this crate does not own and cannot box at the API boundary"
+    )]
     fn load_from_env_path_selector_does_not_trip_deny_unknown_fields() {
         // A target with no `config` field and deny_unknown_fields must not
         // reject the selector variable as an unexpected key.

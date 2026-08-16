@@ -34,6 +34,10 @@ struct AppConfig {
 }
 
 #[test]
+#[expect(
+    clippy::result_large_err,
+    reason = "figment::Jail::expect_with fixes the closure's Err type to figment::Error, a third-party type this crate does not own and cannot box at the API boundary"
+)]
 fn run_wires_cli_verbosity_into_the_installed_subscriber() {
     figment::Jail::expect_with(|jail| {
         // WHY: RUST_LOG unset so the -vv flag, not the environment, is the

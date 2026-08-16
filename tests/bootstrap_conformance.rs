@@ -30,6 +30,10 @@ struct AppConfig {
 }
 
 #[test]
+#[expect(
+    clippy::result_large_err,
+    reason = "figment::Jail::expect_with fixes the closure's Err type to figment::Error, a third-party type this crate does not own and cannot box at the API boundary"
+)]
 fn run_composes_cli_precedence_config_loading_and_telemetry_in_one_call() {
     figment::Jail::expect_with(|jail| {
         jail.create_file("app.toml", "port = 9090")?;
@@ -54,6 +58,10 @@ fn run_composes_cli_precedence_config_loading_and_telemetry_in_one_call() {
 }
 
 #[test]
+#[expect(
+    clippy::result_large_err,
+    reason = "figment::Jail::expect_with fixes the closure's Err type to figment::Error, a third-party type this crate does not own and cannot box at the API boundary"
+)]
 fn run_is_idempotent_with_identical_input() {
     // WHY: bootstrap::run is a state-modifying operation (it initializes a
     // process-global tracing subscriber), so TESTING.md's idempotency
@@ -89,6 +97,10 @@ fn run_is_idempotent_with_identical_input() {
 }
 
 #[test]
+#[expect(
+    clippy::result_large_err,
+    reason = "figment::Jail::expect_with fixes the closure's Err type to figment::Error, a third-party type this crate does not own and cannot box at the API boundary"
+)]
 fn run_reloads_config_on_each_call_rather_than_caching() {
     // WHY: a distinct property from idempotency above — this proves run()
     // does not memoize the first call's result, by giving it DIFFERENT
@@ -113,6 +125,10 @@ fn run_reloads_config_on_each_call_rather_than_caching() {
 }
 
 #[test]
+#[expect(
+    clippy::result_large_err,
+    reason = "figment::Jail::expect_with fixes the closure's Err type to figment::Error, a third-party type this crate does not own and cannot box at the API boundary"
+)]
 fn run_surfaces_the_typed_config_error_it_owns() {
     // Negative-case fixture: a malformed config file must reach the caller
     // as the real ConfigError::Parse variant through the public bootstrap

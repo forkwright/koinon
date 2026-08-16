@@ -8,6 +8,10 @@ use koinon::telemetry::build_filter;
 // restores prior values — the lib test binary never sees these variables.
 
 #[test]
+#[expect(
+    clippy::result_large_err,
+    reason = "figment::Jail::expect_with fixes the closure's Err type to figment::Error, a third-party type this crate does not own and cannot box at the API boundary"
+)]
 fn rust_log_set_wins_over_default_directive() {
     figment::Jail::expect_with(|jail| {
         jail.set_env("RUST_LOG", "warn");
@@ -18,6 +22,10 @@ fn rust_log_set_wins_over_default_directive() {
 }
 
 #[test]
+#[expect(
+    clippy::result_large_err,
+    reason = "figment::Jail::expect_with fixes the closure's Err type to figment::Error, a third-party type this crate does not own and cannot box at the API boundary"
+)]
 fn rust_log_set_wins_over_multi_directive_default() {
     figment::Jail::expect_with(|jail| {
         jail.set_env("RUST_LOG", "error");
@@ -28,6 +36,10 @@ fn rust_log_set_wins_over_multi_directive_default() {
 }
 
 #[test]
+#[expect(
+    clippy::result_large_err,
+    reason = "figment::Jail::expect_with fixes the closure's Err type to figment::Error, a third-party type this crate does not own and cannot box at the API boundary"
+)]
 fn rust_log_empty_falls_back_to_multi_directive_default() {
     figment::Jail::expect_with(|jail| {
         jail.set_env("RUST_LOG", "");
