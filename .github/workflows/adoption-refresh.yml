@@ -1,0 +1,55 @@
+name: Adoption Refresh
+
+# WHY schedule + workflow_dispatch, not a push trigger: this is the ONLY
+# thing that lets ADOPTION.md's derived block change without a human
+# editing koinon (see adoption/README.md and ADOPTION.md's "Fleet
+# migration status" section) — the eleven tracked repos' default branches
+# move on their own schedule, not koinon's.
+on:
+  schedule:
+    - cron: "0 6 * * 1" # Monday 06:00 UTC
+  workflow_dispatch: {}
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
+      - name: Derive
+        working-directory: adoption
+        env:
+          # WHY this secret may not exist yet: gnomon and kanon are private;
+          # the default GITHUB_TOKEN cannot read a different private repo
+          # in the org regardless of how it is passed (a GitHub Actions
+          # platform boundary, not a gap here) — see adoption/README.md
+          # § Private tracked repos. Absent, this job still runs correctly:
+          # those two rows report `unobserved`, honestly.
+          KOINON_ADOPTION_TOKEN: ${{ secrets.KOINON_ADOPTION_TOKEN }}
+        run: uv run python -m koinon_adoption derive
+      # WHY a PR, not a direct push: main requires the Gate Attestation
+      # check (see .github/workflows/gate-attestation.yml) and this
+      # workflow's GITHUB_TOKEN has no standing to bypass that — the same
+      # reason release-please (.github/workflows/release-please.yml) opens
+      # a PR for its own automated changes instead of pushing directly.
+      - uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8.1.1
+        with:
+          commit-message: "chore(adoption): refresh derived fleet migration status"
+          title: "chore(adoption): refresh derived fleet migration status"
+          body: |
+            Automated re-derivation of ADOPTION.md's "Fleet migration status"
+            block (`koinon-adoption derive`, run on schedule). See
+            `adoption/README.md` for the mechanism.
+          branch: adoption-refresh
+          delete-branch: true
+          add-paths: ADOPTION.md

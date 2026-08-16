@@ -53,6 +53,35 @@ jobs:
           command: check advisories licenses bans sources
           arguments: --all-features
 
+  adoption:
+    name: adoption
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
+      - name: Test
+        working-directory: adoption
+        run: uv run pytest
+      - name: Lint
+        working-directory: adoption
+        run: |
+          uv run ruff check .
+          uv run ruff format --check .
+      - name: Typecheck
+        working-directory: adoption
+        run: uv run mypy .
+      # WHY offline-only here: `koinon-adoption check` re-parses the block
+      # already committed in ADOPTION.md and never touches the network
+      # (see adoption/README.md). The live cross-repo re-derivation runs on
+      # its own schedule in adoption-refresh.yml, not on every push/PR —
+      # coupling koinon's own CI to eleven other repos' current state would
+      # make an unrelated koinon PR fail for reasons outside its diff.
+      - name: Check adoption block freshness
+        working-directory: adoption
+        run: uv run python -m koinon_adoption check
+
   commitlint:
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest

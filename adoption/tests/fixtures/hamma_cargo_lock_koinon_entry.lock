@@ -1,0 +1,15 @@
+# Captured verbatim (single [[package]] block) from forkwright/hamma
+# Cargo.lock. A `[[package]]` array-of-tables entry parses standalone —
+# no surrounding lockfile content is needed for tomllib to read it.
+[[package]]
+name = "koinon"
+version = "0.1.0"
+source = "git+https://github.com/forkwright/koinon?tag=v0.1.0#d928b96ea3ab3c635c5012e66189988fd40d29fa"
+dependencies = [
+ "clap",
+ "figment",
+ "serde",
+ "snafu 0.8.9",
+ "tracing",
+ "tracing-subscriber",
+]

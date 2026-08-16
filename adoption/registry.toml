@@ -1,0 +1,41 @@
+# SSOT: fleet repos in scope for koinon-adoption derivation.
+#
+# This is scope config, not a fact — TEKHNE.md rung 2 ("thin config: which
+# repos"). What each listed repo's adoption state IS gets computed fresh
+# every run by `koinon_adoption.derive`; adding or removing a `[[repo]]`
+# entry here changes what gets observed, never how a fact is reported.
+#
+# `owner` defaults to "forkwright" and is normally omitted.
+
+[[repo]]
+name = "hamma"
+
+[[repo]]
+name = "gnomon"
+
+[[repo]]
+name = "akroasis"
+
+[[repo]]
+name = "aletheia"
+
+[[repo]]
+name = "kanon"
+
+[[repo]]
+name = "logismos"
+
+[[repo]]
+name = "harmonia"
+
+[[repo]]
+name = "thumos"
+
+[[repo]]
+name = "epistole"
+
+[[repo]]
+name = "theatron"
+
+[[repo]]
+name = "dioptron"

@@ -15,7 +15,10 @@ clap global arg prelude.
 - `src/error.rs` — `AppError`, `ConfigError`, snafu re-exports
 - `src/config.rs` — figment loader (`load`, `load_with_defaults`, `load_from_env`, `load_from_env_path`)
 - `src/cli.rs` — clap prelude (`GlobalArgs`, `Verbosity`)
-- `ADOPTION.md` — migration guide for existing forkwright repos
+- `ADOPTION.md` — migration guide for existing forkwright repos; its "Fleet
+  migration status" table is derived, not hand-written — see `adoption/README.md`
+- `adoption/` — the Python tool that derives that table (`koinon-adoption
+  derive` / `check`); `adoption/registry.toml` is the tracked-repo list
 
 ## Conventions
 
