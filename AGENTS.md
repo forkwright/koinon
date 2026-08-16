@@ -10,9 +10,13 @@ Read CLAUDE.md first for repo conventions and key patterns.
 
 ## What koinon is
 
-Fleet-common Rust scaffolding: tracing init, typed error bases, figment config
-loading, and a clap CLI prelude. Every forkwright binary and library depends
-on this instead of hand-rolling these concerns.
+The typed application-bootstrap sequence for forkwright crates:
+`bootstrap::run` integrates CLI/environment verbosity resolution, figment
+config loading, and tracing init into one call. `cli`, `config`, and
+`telemetry` are the leaves that sequence composes and remain directly usable
+for a crate that genuinely needs only one of them. A forkwright binary that
+owns a `main` should depend on this instead of hand-rolling the sequence;
+koinon does not define or own a binary's top-level application error.
 
 ## Commands
 
@@ -30,8 +34,9 @@ Branch protection requires a `Gate-Passed:` trailer on a PR commit. Run
 
 ## Commit convention
 
-`type(scope): description`. Scope is the module name (`telemetry`, `config`,
-`error`, `cli`) or `crate` for workspace-level changes.
+`type(scope): description`. Scope is the module name (`bootstrap`,
+`telemetry`, `config`, `error`, `cli`) or `crate` for workspace-level
+changes.
 
 ## Forbidden
 

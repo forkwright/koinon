@@ -5,13 +5,24 @@ forkwright Rust crate or workspace.
 
 ## When to adopt
 
-Adopt `koinon` when a crate has any of:
-- Hand-rolled `tracing_subscriber::fmt().with_env_filter(...).init()` blocks
-- A startup-error enum with no domain errors of its own (replace it with
-  `koinon::error::AppError`), or one that hand-rolls config-loading errors
-  instead of wrapping `koinon::error::ConfigError`
-- Direct `serde` + file reads for config (replace with `koinon::config::load`)
-- `clap` structs that duplicate `--verbose` / log-level args
+**A binary that owns a `main`** — parses its own CLI, loads its own config,
+and initializes its own logging — adopts the integrated
+[`koinon::bootstrap::run`](#recommended-full-bootstrap): one call replacing
+the hand-rolled sequence of "parse args, then init tracing, then load
+config, and hope nothing depends on the order."
+
+**A library, or a binary that only has one of those three concerns**, adopts
+the matching leaf module directly instead — [`koinon::telemetry`](#partial-adoption-one-leaf),
+[`koinon::config`](#partial-adoption-one-leaf), or [`koinon::cli`](#partial-adoption-one-leaf).
+A doctest or example binary that only needs `tracing_subscriber::fmt` set up
+is not a bootstrap sequence; forcing it through `bootstrap::run` for a config
+file and CLI struct it does not have would be the wrapper-for-its-own-sake
+this guide does not want.
+
+Either way, a domain error a consumer already hand-rolls with `snafu` or
+`thiserror` stays exactly where it is — see
+[Wrapping `ConfigError`](#wrapping-configerror) below. Koinon does not
+define or claim a binary's top-level error sum.
 
 ## Step 1: Add the dependency
 
@@ -34,7 +45,7 @@ koinon = "0.1"
 For workspaces, add to `[workspace.dependencies]` and reference via
 `koinon = { workspace = true }` in each member crate.
 
-Libraries that only need a subset can trim the dependency tree:
+Crates that only need one leaf can trim the dependency tree:
 
 <!-- x-release-please-start-version -->
 ```toml
@@ -43,12 +54,77 @@ koinon = { git = "https://github.com/forkwright/koinon", tag = "v0.1.4", default
 ```
 <!-- x-release-please-end-version -->
 
-Features: `telemetry`, `config`, `cli` (implies `telemetry`); the `error`
-module is always available.
+Features: `telemetry`, `config`, `cli` (implies `telemetry`), `bootstrap`
+(implies `cli` + `config`); the `error` module is always available.
 
-## Step 2: Replace tracing init
+## Recommended: full bootstrap
 
-**Before (typical hand-rolled pattern):**
+Replaces a hand-rolled sequence like:
+
+```rust
+let cli = Cli::parse();
+let directive = if cli.verbose > 0 { "debug" } else { "my_crate=info" };
+tracing_subscriber::fmt().with_env_filter(directive).init();
+let config: AppConfig = Figment::new()
+    .merge(Serialized::defaults(AppConfig::default()))
+    .merge(Toml::file("app.toml"))
+    .merge(Env::prefixed("APP_"))
+    .extract()
+    .map_err(|e| MyError::Config { message: e.to_string() })?;
+```
+
+with one call that resolves CLI/environment verbosity, initializes telemetry
+from that resolution, and loads the typed config through the same
+defaults → TOML → env-var policy, in that order:
+
+```rust
+use clap::Parser;
+use koinon::bootstrap;
+use koinon::cli::GlobalArgs;
+use serde::{Deserialize, Serialize};
+
+#[derive(Parser)]
+struct Cli {
+    #[command(flatten)]
+    global: GlobalArgs,
+}
+
+#[derive(Debug, Deserialize, Serialize, Default)]
+struct AppConfig {
+    port: u16,
+}
+
+fn main() -> Result<(), koinon::error::ConfigError> {
+    let cli = Cli::parse();
+    let boot = bootstrap::run(&cli.global, "app.toml", "APP", "my_crate=info")?;
+    tracing::info!(port = boot.config.port, "started");
+    Ok(())
+}
+```
+
+`boot.config` is the loaded `AppConfig`; `boot.verbosity()` and
+`boot.log_json()` are the exact values telemetry was initialized with, not
+re-derived from config. `run` returns `koinon::error::ConfigError` -
+§ [Wrapping `ConfigError`](#wrapping-configerror) covers wrapping it into a
+binary's own top-level enum when one exists.
+
+For a `main` with no domain errors of its own, `?` against `run`'s
+`ConfigError` directly, as the example above does, is enough — there is no
+separate koinon-provided top-level error type to reach for.
+
+Remove `tracing-subscriber` and `figment` from direct `[dependencies]` (keep
+`tracing-subscriber` in `[dev-dependencies]` only if tests set up their own
+subscriber) once nothing in the crate calls them directly.
+
+## Partial adoption (one leaf)
+
+Use a single module directly when a crate has exactly one of these
+boilerplate patterns and no bootstrap sequence to integrate it into — a
+library example, or a binary with only one of the three concerns.
+
+### Tracing init only
+
+**Before:**
 
 ```rust
 let directive = "my_crate=info"
@@ -70,32 +146,9 @@ koinon::telemetry::init("my_crate=info");
 
 If you need JSON logs in production, call `koinon::telemetry::init_json`.
 
-Remove `tracing-subscriber` from `[dependencies]` (keep it in
-`[dev-dependencies]` only if tests set up their own subscriber).
+### Config loading only
 
-### With a CLI binary
-
-If you have a `clap` CLI, embed `GlobalArgs` instead:
-
-```rust
-use clap::Parser;
-use koinon::cli::GlobalArgs;
-
-#[derive(Parser)]
-struct Cli {
-    #[command(flatten)]
-    global: GlobalArgs,
-}
-
-fn main() {
-    let cli = Cli::parse();
-    cli.global.init_tracing("my_crate=info");
-}
-```
-
-## Step 3: Replace config loading
-
-**Before (common figment hand-roll):**
+**Before:**
 
 ```rust
 use figment::{Figment, providers::{Format, Toml, Env}};
@@ -122,41 +175,38 @@ let defaults = AppConfig::for_environment(env);
 let config: AppConfig = koinon::config::load_with_defaults("app.toml", "APP_", &defaults)?;
 ```
 
-Remove the direct `figment` dependency from `Cargo.toml` unless the crate
-uses figment APIs beyond what `koinon::config` exposes.
+### CLI verbosity flags only
 
-## Step 4: Use koinon error types (binary crates)
-
-Binaries with **no domain-specific errors of their own** can return
-`koinon::error::AppError` directly from `main`:
-
-**Before:**
+Embed `GlobalArgs` without calling `bootstrap::run`, then drive telemetry
+init yourself:
 
 ```rust
-#[derive(Debug, thiserror::Error)]
-enum MainError {
-    #[error("config: {0}")]
-    Config(String),
-    #[error("tracing init: {0}")]
-    TracingInit(String),
+use clap::Parser;
+use koinon::cli::GlobalArgs;
+
+#[derive(Parser)]
+struct Cli {
+    #[command(flatten)]
+    global: GlobalArgs,
+}
+
+fn main() {
+    let cli = Cli::parse();
+    cli.global.init_tracing("my_crate=info");
 }
 ```
 
-**After:**
+## Wrapping `ConfigError`
+
+`koinon::error::ConfigError` is the only error type koinon exposes — it is
+the one error koinon semantically owns, produced by `config::load` and by
+`bootstrap::run`. A binary's top-level error sum is not koinon's to define;
+it stays in the consumer, which wraps `ConfigError` into it the same way any
+consumer-owned `snafu` enum wraps a source:
 
 ```rust
-use koinon::error::AppError;
-// AppError::Config, AppError::Startup, AppError::Argument are provided.
-```
-
-Binaries that **do** have domain-specific errors keep their own top-level
-enum instead of replacing it with `AppError`, and wrap koinon's component
-errors into it the same way any consumer-owned `snafu` enum wraps a
-source. `AppError` is `#[non_exhaustive]`, so a downstream crate cannot
-add a domain variant to it:
-
-```rust
-use koinon::error::{ConfigError, ResultExt, Snafu};
+use koinon::error::ConfigError;
+use snafu::{ResultExt, Snafu};
 
 #[derive(Debug, Snafu)]
 enum MainError {
@@ -174,17 +224,12 @@ fn run() -> Result<(), MainError> {
 }
 ```
 
-Library crates keep their own `snafu` error enums but can import the
-`snafu` macros via `koinon::error::{Snafu, ResultExt}`:
+Koinon does not re-export `snafu` — import the macros directly from
+`snafu`, as above. Every consumer defining its own `snafu` enum already
+needs a direct `snafu` dependency to do so, so the re-export saved nothing
+but a `use` line while adding a second name for the same items.
 
-```rust
-use koinon::error::{Snafu, ResultExt};
-
-#[derive(Debug, Snafu)]
-enum DomainError { ... }
-```
-
-## Step 5: Verify
+## Verify
 
 ```bash
 cargo build

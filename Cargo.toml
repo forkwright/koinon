@@ -1,20 +1,21 @@
 [package]
 name = "koinon"
-description = "κοινόν — fleet-common Rust scaffolding: tracing init, typed errors, config loading, clap prelude"
+description = "κοινόν — typed application-bootstrap for forkwright Rust crates: integrated CLI, config, and telemetry init"
 version = "0.1.4"
 edition = "2024"
 rust-version = "1.85"
 license = "Apache-2.0"
 repository = "https://github.com/forkwright/koinon"
-keywords = ["tracing", "config", "clap", "errors", "scaffolding"]
+keywords = ["tracing", "config", "clap", "bootstrap", "scaffolding"]
 categories = ["development-tools"]
 readme = "README.md"
 
 [features]
-default = ["telemetry", "config", "cli"]
+default = ["telemetry", "config", "cli", "bootstrap"]
 telemetry = ["dep:tracing", "dep:tracing-subscriber"]
 config = ["dep:figment", "dep:serde"]
 cli = ["dep:clap", "telemetry"]
+bootstrap = ["cli", "config"]
 
 [dependencies]
 # Tracing (feature: telemetry)

@@ -1,24 +1,33 @@
 # koinon
 
-κοινόν - fleet-common Rust scaffolding for forkwright crates.
+κοινόν - the typed application-bootstrap sequence for forkwright crates.
 
-Eliminates the boilerplate that every forkwright binary and library repeats:
-tracing subscriber setup, typed error bases, `figment`-backed config loading,
-and a `clap` prelude for global flags.
+Ties CLI/environment verbosity resolution, `figment`-backed config loading,
+and `tracing` subscriber initialization into one call, `koinon::bootstrap::run`,
+instead of leaving a binary to call three separate helpers and hope it
+called them in the right order. That call is koinon's one invariant; the
+individual modules below are the leaves it composes, still directly usable on
+their own for a crate that genuinely only needs one of them (a library
+doctest initializing telemetry with no config or CLI of its own, say).
+
+Koinon does not define or own a binary's top-level application error - that
+sum stays in the consumer, which wraps koinon's own `ConfigError` into it the
+same way it wraps any other typed source.
 
 ## Modules
 
 | Module | Purpose |
 |--------|---------|
-| `telemetry` | `tracing` subscriber init with `RUST_LOG` / `EnvFilter` fallback |
-| `error` | `AppError`, `ConfigError`, and `snafu` re-exports |
-| `config` | `figment` loader: TOML file → env-var override → typed struct |
+| `bootstrap` | `run` - the integrated CLI + config + telemetry sequence |
 | `cli` | `GlobalArgs` (`--verbose`, `--log-json`) for `clap` CLI binaries |
+| `config` | `figment` loader: TOML file → env-var override → typed struct |
+| `telemetry` | `tracing` subscriber init with `RUST_LOG` / `EnvFilter` fallback |
+| `error` | `ConfigError` - the one error type koinon semantically owns |
 
 ## Feature flags
 
-`telemetry`, `config`, and `cli` are Cargo features, all on by default;
-`error` is always available. Trim the dependency tree with
+`telemetry`, `config`, `cli`, and `bootstrap` are Cargo features, all on by
+default; `error` is always available. Trim the dependency tree with
 `default-features = false`:
 
 <!-- x-release-please-start-version -->
@@ -33,6 +42,7 @@ koinon = { git = "https://github.com/forkwright/koinon", tag = "v0.1.4", default
 | `telemetry` | `tracing`, `tracing-subscriber` |
 | `config` | `figment`, `serde` |
 | `cli` | `clap` (implies `telemetry`) |
+| `bootstrap` | the `bootstrap` module (implies `cli` + `config`) |
 
 ## Quick start
 
@@ -45,7 +55,9 @@ koinon = { git = "https://github.com/forkwright/koinon", tag = "v0.1.4" }
 
 ```rust
 use clap::Parser;
+use koinon::bootstrap;
 use koinon::cli::GlobalArgs;
+use serde::{Deserialize, Serialize};
 
 #[derive(Parser)]
 struct Cli {
@@ -53,10 +65,16 @@ struct Cli {
     global: GlobalArgs,
 }
 
-fn main() {
+#[derive(Debug, Deserialize, Serialize, Default)]
+struct AppConfig {
+    port: u16,
+}
+
+fn main() -> Result<(), koinon::error::ConfigError> {
     let cli = Cli::parse();
-    cli.global.init_tracing("my_crate=info");
-    tracing::info!("started");
+    let boot = bootstrap::run(&cli.global, "app.toml", "APP", "my_crate=info")?;
+    tracing::info!(port = boot.config.port, "started");
+    Ok(())
 }
 ```
 

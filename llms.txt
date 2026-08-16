@@ -1,26 +1,31 @@
 # koinon
 
-Fleet-common Rust scaffolding for forkwright crates.
+The typed application-bootstrap sequence for forkwright Rust crates.
 
 ## Purpose
 
-Eliminates repeated boilerplate across all forkwright Rust repos:
-tracing subscriber init, typed error types, figment config loading,
-clap global arg prelude.
+`bootstrap::run` is koinon's one invariant: it integrates CLI/environment
+verbosity resolution, `tracing` subscriber init, and `figment` config
+loading into one call with one failure surface, instead of a binary calling
+three peer helpers independently and hoping it ordered them right. `cli`,
+`config`, and `telemetry` are the leaves that sequence composes, still
+directly usable on their own for a crate that genuinely needs only one.
+Koinon does not own a binary's top-level application error — see `error.rs`.
 
 ## Key files
 
 - `src/lib.rs` — module declarations, crate-level docs
+- `src/bootstrap.rs` — the integrated sequence (`run`, `Bootstrap<T>`)
 - `src/telemetry.rs` — tracing subscriber init (`init`, `init_compact`, `init_json`, `build_filter`)
-- `src/error.rs` — `AppError`, `ConfigError`, snafu re-exports
+- `src/error.rs` — `ConfigError`, the one error koinon semantically owns (no `AppError`, no snafu re-export)
 - `src/config.rs` — figment loader (`load`, `load_with_defaults`, `load_from_env`, `load_from_env_path`)
 - `src/cli.rs` — clap prelude (`GlobalArgs`, `Verbosity`)
 - `ADOPTION.md` — migration guide for existing forkwright repos
 
 ## Conventions
 
-- Cargo features: `telemetry`, `config`, `cli` (default all on; `cli` implies `telemetry`; `error` always compiled)
+- Cargo features: `telemetry`, `config`, `cli`, `bootstrap` (default all on; `cli` implies `telemetry`; `bootstrap` implies `cli` + `config`; `error` always compiled)
 - All public items documented
 - No `unwrap`/`expect` in library code
-- `snafu` for error types; never `anyhow` or `thiserror`
+- `snafu` for error types; never `anyhow` or `thiserror`; koinon does not re-export `snafu` — consumers depend on it directly
 - `figment` for config; never raw `serde_json::from_str` for config files
