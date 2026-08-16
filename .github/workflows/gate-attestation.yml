@@ -64,9 +64,8 @@ jobs:
   gate:
     uses: forkwright/.github/.github/workflows/hybrid-gate.yml@main
     with:
-      # WHY defaults kept as-is: koinon has its own rust-toolchain file
-      # (channel 1.85, matches Cargo.toml rust-version) -- auto-detect
-      # applies, no rust_toolchain override needed.
+      # WHY defaults kept as-is: koinon has its own rust-toolchain.toml --
+      # auto-detect applies, no rust_toolchain override needed.
       fmt_cmd: "cargo fmt --all -- --check"
       check_cmd: "cargo check --workspace --all-targets"
       clippy_cmd: "cargo clippy --workspace --all-targets -- -D warnings"

@@ -12,7 +12,7 @@ fn assert_pins_match_current_release(relative_path: &str, expected_tag: &str) {
     let full_path = Path::new(manifest_dir).join(relative_path);
     let content = match fs::read_to_string(&full_path) {
         Ok(content) => content,
-        Err(e) => panic!("failed to read {full_path:?}: {e}"),
+        Err(e) => panic!("failed to read {}: {e}", full_path.display()),
     };
 
     let pins: Vec<&str> = content
@@ -61,7 +61,7 @@ fn assert_release_please_markers_bracket_every_pin(relative_path: &str) {
     let full_path = std::path::Path::new(manifest_dir).join(relative_path);
     let content = match fs::read_to_string(&full_path) {
         Ok(content) => content,
-        Err(e) => panic!("failed to read {full_path:?}: {e}"),
+        Err(e) => panic!("failed to read {}: {e}", full_path.display()),
     };
 
     let mut inside = false;
