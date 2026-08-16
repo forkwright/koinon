@@ -165,7 +165,11 @@ def test_read_own_default_features_reads_koinons_real_manifest() -> None:
     # NOTE: koinon's own Cargo.toml lives two directories above adoption/.
     manifest = Path(__file__).parents[2] / "Cargo.toml"
     features = derive.read_own_default_features(manifest)
-    assert features == frozenset({"telemetry", "config", "cli"})
+    # WHY pinned rather than derived: the point of this test is to catch an
+    # unintended change to the crate's default feature set, so it must be updated
+    # deliberately whenever the set changes on purpose. `bootstrap` was added by the
+    # bootstrap-boundary work; this expectation is the record that it was intended.
+    assert features == frozenset({"telemetry", "config", "cli", "bootstrap"})
 
 
 def test_derive_all_preserves_registry_order(
