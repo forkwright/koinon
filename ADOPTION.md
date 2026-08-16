@@ -63,7 +63,7 @@ Replaces a hand-rolled sequence like:
 
 ```rust
 let cli = Cli::parse();
-let directive = if cli.global.verbose > 0 { "debug" } else { "my_crate=info" };
+let directive = if cli.verbose > 0 { "debug" } else { "my_crate=info" };
 tracing_subscriber::fmt().with_env_filter(directive).init();
 let config: AppConfig = Figment::new()
     .merge(Serialized::defaults(AppConfig::default()))
