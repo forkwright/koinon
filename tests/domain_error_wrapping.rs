@@ -1,14 +1,15 @@
 //! A consumer-owned top-level error wraps a local domain error and
 //! propagates it through `?` while keeping it in the source chain.
 //!
-//! `koinon::error::AppError` cannot do this: it is `#[non_exhaustive]`, so
-//! a downstream crate cannot add a domain variant to it (kanon#18). The
-//! error module doc on `koinon::error::AppError` shows the same pattern
-//! also declaring a `Config { source: ConfigError }` variant alongside
-//! this one in a single enum.
+//! This is the pattern koinon requires for every domain error: koinon does
+//! not define or claim a binary's top-level error sum (kanon#18, kanon#28)
+//! — the `koinon::error` module doc shows the same pattern declaring a
+//! `Config { source: ConfigError }` variant alongside this one in a single
+//! consumer-owned enum.
 
-use koinon::error::{ResultExt, Snafu};
 use std::error::Error as _;
+
+use snafu::{ResultExt, Snafu};
 
 #[derive(Debug, Snafu)]
 enum MainError {

@@ -34,6 +34,7 @@ jobs:
           cargo check --no-default-features --features telemetry
           cargo check --no-default-features --features config
           cargo check --no-default-features --features cli
+          cargo check --no-default-features --features bootstrap
       - name: Test
         run: cargo test
       - name: Clippy

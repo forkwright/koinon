@@ -1,21 +1,18 @@
-//! Common error types and `snafu` re-exports for forkwright crates.
+//! Component error types koinon semantically owns.
 //!
 //! # Pattern
 //!
-//! Library crates define their own domain-specific error enums with `snafu`.
-//! Binary crates with no domain errors of their own can return
-//! [`AppError`] directly from `main` to wrap initialization failures
-//! (config loading, argument parsing) that precede any domain-specific
-//! work.
-//!
-//! [`AppError`] is `#[non_exhaustive]` — a downstream crate cannot add a
-//! variant to it. Binary crates that do have domain errors keep their own
-//! top-level error enum and wrap koinon's component errors into it, the
-//! same way any consumer-owned `snafu` enum wraps a source (see
-//! [`ConfigError`] below):
+//! Koinon exposes only errors produced by its own components — currently
+//! [`ConfigError`], returned by [`crate::config`] and by the `bootstrap`
+//! module's `run` (feature-gated; not a doc link here since this module is
+//! always available and `bootstrap` is not). It does not define or claim a
+//! binary's top-level application error: that sum belongs to the consumer,
+//! which wraps koinon's component errors into it the same way any
+//! consumer-owned `snafu` enum wraps a source.
 //!
 //! ```rust
-//! use koinon::error::{ConfigError, ResultExt, Snafu};
+//! use koinon::error::ConfigError;
+//! use snafu::{ResultExt, Snafu};
 //!
 //! #[derive(Debug, Snafu)]
 //! enum MainError {
@@ -40,63 +37,13 @@
 //! assert!(err.source().is_some(), "domain error stays in the source chain");
 //! ```
 //!
-//! # Re-exports
-//!
-//! `snafu::{ResultExt, Snafu, ensure, whatever}` are re-exported so crates
-//! that add `koinon` do not also need a direct `snafu` dependency for the
-//! common macros.
-//!
-//! # Usage
-//!
-//! ```rust
-//! use koinon::error::{ConfigError, ResultExt, Snafu};
-//!
-//! #[derive(Debug, Snafu)]
-//! enum MyError {
-//!     #[snafu(display("config: {source}"))]
-//!     Config { source: ConfigError },
-//! }
-//! ```
+//! `snafu` is not re-exported here: a re-export whose only contract is
+//! shortening `use snafu::...` to `use koinon::error::...` is import
+//! reduction, not behavior, and every consumer that defines its own `snafu`
+//! enum already needs a direct `snafu` dependency to do so. Import the
+//! macros from `snafu` directly, as the example above does.
 
-pub use snafu::{Location, ResultExt, Snafu, ensure, whatever};
-
-/// Top-level error for binary `main` functions that have no
-/// domain-specific errors of their own.
-///
-/// Wraps the two most common initialization failures (config loading,
-/// argument parsing) that precede any domain-specific work. Returned as
-/// `Box<dyn std::error::Error>` would hide variant structure; use this
-/// typed enum instead.
-///
-/// `AppError` is `#[non_exhaustive]`, so a downstream crate cannot add a
-/// variant to it. A binary with its own domain errors should define its
-/// own top-level error enum and wrap koinon's component errors (such as
-/// [`ConfigError`]) into it instead of trying to route a domain error
-/// through `AppError` — see the module-level example above.
-#[derive(Debug, Snafu)]
-#[non_exhaustive]
-pub enum AppError {
-    /// Configuration loading failed.
-    #[snafu(display("configuration error: {source}"))]
-    Config {
-        /// The underlying config error.
-        source: ConfigError,
-    },
-
-    /// An argument is missing or invalid.
-    #[snafu(display("argument error: {message}"))]
-    Argument {
-        /// Description of the problem.
-        message: String,
-    },
-
-    /// An otherwise unclassified startup error.
-    #[snafu(display("startup error: {message}"))]
-    Startup {
-        /// Description of the problem.
-        message: String,
-    },
-}
+use snafu::Snafu;
 
 /// Error returned by the `config` module when a configuration file cannot
 /// be loaded or validated.
@@ -104,7 +51,8 @@ pub enum AppError {
 /// Consumers that want to wrap this error in their own enum use:
 ///
 /// ```rust
-/// # use koinon::error::{ConfigError, Snafu};
+/// # use koinon::error::ConfigError;
+/// # use snafu::Snafu;
 /// #[derive(Debug, Snafu)]
 /// enum MyError {
 ///     #[snafu(display("config: {source}"))]
@@ -154,14 +102,6 @@ pub enum ConfigError {
 #[cfg(test)]
 mod tests {
     use super::*;
-
-    #[test]
-    fn app_error_display() {
-        let err = AppError::Argument {
-            message: "foo must be positive".to_string(),
-        };
-        assert!(err.to_string().contains("foo must be positive"));
-    }
 
     #[test]
     fn config_error_display_parse() {
