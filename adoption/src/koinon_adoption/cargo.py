@@ -18,11 +18,12 @@ import tomllib
 from dataclasses import dataclass
 from typing import Final
 
-#: Cargo.lock `source` prefixes that identify the real forkwright/koinon
-#: crate. A git dependency's source is pinned to this exact repository URL;
-#: a future crates.io publish would carry a `registry+` source, and since
-#: crate names are globally unique on crates.io, any `registry+` source on a
-#: package literally named "koinon" is unambiguously this crate.
+# WHY: these two prefixes, and no others, identify the real
+# forkwright/koinon crate. A git dependency's source is pinned to this
+# exact repository URL; a future crates.io publish would carry a
+# `registry+` source, and since crate names are globally unique on
+# crates.io, any `registry+` source on a package literally named "koinon"
+# is unambiguously this crate.
 _EXTERNAL_SOURCE_PREFIXES: Final = ("git+https://github.com/forkwright/koinon", "registry+")
 
 
@@ -85,7 +86,7 @@ class ManifestDependency:
 
 def _parse_dependency_value(value: object) -> ManifestDependency | None:
     if isinstance(value, str):
-        # `koinon = "0.1"` — bare version, always external (crates.io/registry).
+        # NOTE: `koinon = "0.1"` — bare version, always external (crates.io/registry).
         return ManifestDependency(
             is_path=False, is_workspace_ref=False, features=frozenset(), default_features=True
         )
@@ -108,13 +109,14 @@ def _parse_dependency_value(value: object) -> ManifestDependency | None:
     return None
 
 
-#: Tables Cargo resolves a dependency edge from, checked in this priority
-#: order. WHY dev-dependencies is in scope at all: hamma's actual koinon
-#: reference (crates/dictyon, the #19 evidence repo) is declared under
-#: `[dev-dependencies]` — koinon backs dictyon's *example* binary, not the
-#: library — and Cargo.lock resolves dev-dependencies into the same graph
-#: as normal ones, so excluding this table would make `RESOLVED` disagree
-#: with Cargo.lock's own ground truth for the one repo #19 cites as proof.
+# NOTE: tables Cargo resolves a dependency edge from, checked in this
+# priority order.
+# WHY: dev-dependencies is in scope at all because hamma's actual koinon
+# reference (crates/dictyon, the #19 evidence repo) is declared under
+# `[dev-dependencies]` — koinon backs dictyon's *example* binary, not the
+# library — and Cargo.lock resolves dev-dependencies into the same graph
+# as normal ones, so excluding this table would make `RESOLVED` disagree
+# with Cargo.lock's own ground truth for the one repo #19 cites as proof.
 _DEPENDENCY_TABLES: Final = ("dependencies", "dev-dependencies", "build-dependencies")
 
 

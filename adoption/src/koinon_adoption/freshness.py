@@ -32,9 +32,9 @@ from koinon_adoption.render import NO_VALUE, BlockNotFoundError, extract_block
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
-#: How long a derived observation stays trustworthy without a re-run.
-#: `adoption-refresh.yml` runs weekly; two full cycles of headroom before
-#: this fires keeps one missed/delayed scheduled run from paging anyone.
+# WHY: 14 days. `adoption-refresh.yml` runs weekly; two full cycles of
+# headroom before this fires keeps one missed/delayed scheduled run from
+# paging anyone.
 DEFAULT_MAX_AGE: Final = timedelta(days=14)
 
 _SHA_CELL_RE: Final = re.compile(r"^`[0-9a-f]{7,40}`$")
@@ -150,14 +150,29 @@ def check_freshness(
                 )
             )
 
-        if row["state"] == AdoptionState.RESOLVED.value and (
-            row["features"] == NO_VALUE or row["reference"] == NO_VALUE
+        # WHY: features and reference are checked together with AND, not
+        # separately or with OR. `derive.effective_features` legitimately
+        # returns an empty set for a RESOLVED consumer on
+        # `default-features = false` with no extra features (koinon's own
+        # `[features].default` excludes `error`, so a consumer referencing
+        # only `koinon::error::AppError` derives a real RESOLVED row with
+        # `features = frozenset()` — see test_derive.py's `_OWN_DEFAULTS`).
+        # Flagging either field alone treats two independent facts (Cargo
+        # feature resolution vs. source-text reference scanning) as
+        # co-required and cries wolf on correct derive output (koinon#19
+        # review). A row with EVERY derived-evidence field blank has no
+        # signal a real `derive_repo()` call could have produced it, so
+        # that combination alone is still a sound violation.
+        if (
+            row["state"] == AdoptionState.RESOLVED.value
+            and row["features"] == NO_VALUE
+            and row["reference"] == NO_VALUE
         ):
             violations.append(
                 Violation(
                     "inconsistent-resolved",
                     f"{row['repo']}: state is {AdoptionState.RESOLVED.value!r} but "
-                    f"features/reference is {NO_VALUE!r}",
+                    f"both features and reference are {NO_VALUE!r}",
                 )
             )
 

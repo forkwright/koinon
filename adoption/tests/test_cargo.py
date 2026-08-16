@@ -31,8 +31,9 @@ def test_parse_lock_koinon_entries_empty_when_absent() -> None:
 
 
 def test_parse_manifest_koinon_dependency_reads_dev_dependencies() -> None:
-    # dictyon's real manifest declares koinon under [dev-dependencies], not
-    # [dependencies] — this is the case that broke a [dependencies]-only scan.
+    # WHY: dictyon's real manifest declares koinon under [dev-dependencies],
+    # not [dependencies] — this is the case that broke a
+    # [dependencies]-only scan.
     dep = cargo.parse_manifest_koinon_dependency(
         read_fixture("hamma_dictyon_cargo_toml.toml"), source_path="dictyon/Cargo.toml"
     )

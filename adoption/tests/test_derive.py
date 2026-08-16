@@ -162,7 +162,7 @@ def test_derive_repo_reports_declared_no_lockfile(
 
 
 def test_read_own_default_features_reads_koinons_real_manifest() -> None:
-    # koinon's own Cargo.toml lives two directories above adoption/.
+    # NOTE: koinon's own Cargo.toml lives two directories above adoption/.
     manifest = Path(__file__).parents[2] / "Cargo.toml"
     features = derive.read_own_default_features(manifest)
     assert features == frozenset({"telemetry", "config", "cli"})

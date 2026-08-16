@@ -18,7 +18,7 @@ from typing import Final
 
 from koinon_adoption.model import ConsumerReference
 
-#: Real top-level modules of the published `koinon` crate (`src/lib.rs`).
+# NOTE: real top-level modules of the published `koinon` crate (`src/lib.rs`).
 _REAL_MODULES: Final = ("telemetry", "config", "cli", "error")
 # NOTE: the optional `\{[^}]*\b` prefix matches a same-line brace-group
 # import (`use koinon::{telemetry, config};`) as well as a direct path

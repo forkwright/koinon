@@ -15,7 +15,8 @@ from koinon_adoption.model import AdoptionState, RepoAdoption
 BEGIN_MARKER: Final = "<!-- koinon-adoption:generated:start -->"
 END_MARKER: Final = "<!-- koinon-adoption:generated:end -->"
 
-#: Placeholder for a table cell that has no meaningful value at this row's state.
+# NOTE: placeholder for a table cell that has no meaningful value at this
+# row's state.
 NO_VALUE: Final = "—"
 
 _HEADER: Final = (

@@ -30,13 +30,13 @@ if TYPE_CHECKING:
 _CLONE_TIMEOUT_SECONDS = 120
 _TIMESTAMP_FMT = "%Y-%m-%dT%H:%M:%SZ"
 
-#: Env var an operator can set to a token with cross-repo read access (a
-#: GitHub App installation token or a scoped PAT — the default per-repo
-#: `GITHUB_TOKEN` in Actions cannot read a *different* private repo no
-#: matter how it is passed, so this is deliberately a distinct secret
-#: name). A private tracked repo with no such token set reports
-#: `UNOBSERVED_PRIVATE` — an honest gap, not a guess — until one is
-#: provisioned, which is an operator action, not something this tool does.
+# WHY: this is a distinct env var, not `GITHUB_TOKEN`. An operator can set
+# it to a token with cross-repo read access (a GitHub App installation
+# token or a scoped PAT) — the default per-repo `GITHUB_TOKEN` in Actions
+# cannot read a *different* private repo no matter how it is passed. A
+# private tracked repo with no such token set reports `UNOBSERVED_PRIVATE`
+# — an honest gap, not a guess — until one is provisioned, which is an
+# operator action, not something this tool does.
 CROSS_REPO_TOKEN_ENV_VAR = "KOINON_ADOPTION_TOKEN"
 
 

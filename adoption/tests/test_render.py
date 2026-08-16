@@ -54,8 +54,9 @@ def test_render_row_shows_evidence_for_resolved() -> None:
 
 
 def test_render_row_blanks_features_and_reference_for_non_resolved() -> None:
-    # Even though the row carries a non-empty `features` set, a non-resolved
-    # state must never claim evidence it did not observe.
+    # WHY: this fixture carries a non-empty `features` set. A non-resolved
+    # state must never claim evidence it did not observe, even when the
+    # underlying row has real data to blank.
     line = render.render_row(_NOT_ADOPTED_ROW)
     cells = [c.strip() for c in line.strip("|").split("|")]
     assert cells[1] == AdoptionState.NOT_ADOPTED.value

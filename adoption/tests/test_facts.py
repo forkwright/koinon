@@ -27,9 +27,10 @@ def test_find_references_rejects_akroasis_local_homonym() -> None:
 
 
 def test_find_references_matches_brace_group_single_line() -> None:
-    # Greedy `[^}]*` backtracks to the rightmost module name in the group,
-    # so only one of {cli, config} is guaranteed — proving "at least one
-    # reference" needs no more than that (see facts.py's module NOTE).
+    # WHY: this only asserts one module, not both. Greedy `[^}]*` backtracks
+    # to the rightmost module name in the group, so only one of {cli,
+    # config} is guaranteed — proving "at least one reference" needs no
+    # more than that (see facts.py's module NOTE).
     text = "use koinon::{cli, config};\n"
     refs = facts.find_references("src/lib.rs", text)
     modules = {r.module for r in refs}
