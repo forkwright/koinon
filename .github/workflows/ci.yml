@@ -14,6 +14,7 @@ permissions:
 
 jobs:
   test:
+    timeout-minutes: 15
     name: test
     runs-on: ubuntu-latest
     steps:
@@ -44,6 +45,7 @@ jobs:
         run: cargo fmt --check
 
   cargo-deny:
+    timeout-minutes: 15
     name: cargo deny
     runs-on: ubuntu-latest
     steps:
@@ -56,6 +58,7 @@ jobs:
           arguments: --all-features
 
   adoption:
+    timeout-minutes: 15
     name: adoption
     runs-on: ubuntu-latest
     steps:
@@ -85,6 +88,7 @@ jobs:
         run: uv run python -m koinon_adoption check
 
   commitlint:
+    timeout-minutes: 15
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     steps:
