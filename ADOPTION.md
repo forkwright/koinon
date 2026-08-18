@@ -258,17 +258,17 @@ every push/PR and fails when the block is hand-edited, drifted from
 <!-- koinon-adoption:generated:start -->
 | Repo | Dependency | Features | Consumer reference | Source SHA | Observed (UTC) |
 |------|-----------|----------|---------------------|-----------|------------------|
-| hamma | resolved | cli, config, telemetry | `crates/dictyon/examples/connect.rs:16` (`koinon::telemetry`) | `4358b47d20` | 2026-08-16T01:54:27Z |
-| gnomon | not adopted | — | — | `0e1d71258b` | 2026-08-16T01:54:27Z |
-| akroasis | not adopted (local homonym only) | — | — | `3e488e0b17` | 2026-08-16T01:54:27Z |
-| aletheia | not adopted | — | — | `1cc7604148` | 2026-08-16T01:54:27Z |
-| kanon | not adopted | — | — | `0ea101e811` | 2026-08-16T01:54:27Z |
-| logismos | not adopted | — | — | `5d0c4ddb10` | 2026-08-16T01:54:27Z |
-| harmonia | not adopted | — | — | `1f7a1cfdec` | 2026-08-16T01:54:27Z |
-| thumos | not adopted | — | — | `e1e66db98c` | 2026-08-16T01:54:27Z |
-| epistole | not adopted | — | — | `3e7154d5fd` | 2026-08-16T01:54:27Z |
-| theatron | not adopted | — | — | `9906675f3d` | 2026-08-16T01:54:27Z |
-| dioptron | not adopted | — | — | `ee954441e1` | 2026-08-16T01:54:27Z |
+| hamma | resolved | bootstrap, cli, config, telemetry | `crates/dictyon/examples/connect.rs:16` (`koinon::telemetry`) | `2f0bd7171d` | 2026-08-17T06:14:26Z |
+| gnomon | unobserved (private, no cross-repo credential) | — | — | — | 2026-08-17T06:14:26Z |
+| akroasis | not adopted (local homonym only) | — | — | `bebbcd13e4` | 2026-08-17T06:14:26Z |
+| aletheia | not adopted | — | — | `e991055187` | 2026-08-17T06:14:26Z |
+| kanon | unobserved (private, no cross-repo credential) | — | — | — | 2026-08-17T06:14:26Z |
+| logismos | not adopted | — | — | `43abb589eb` | 2026-08-17T06:14:26Z |
+| harmonia | not adopted | — | — | `1f7a1cfdec` | 2026-08-17T06:14:26Z |
+| thumos | not adopted | — | — | `e1e66db98c` | 2026-08-17T06:14:26Z |
+| epistole | not adopted | — | — | `f5d4ec684e` | 2026-08-17T06:14:26Z |
+| theatron | not adopted | — | — | `a603e520aa` | 2026-08-17T06:14:26Z |
+| dioptron | not adopted | — | — | `ee954441e1` | 2026-08-17T06:14:26Z |
 <!-- koinon-adoption:generated:end -->
 
 Column meanings: **Dependency** is Cargo.lock's own resolution of the
