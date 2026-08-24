@@ -22,7 +22,7 @@ bootstrap = ["cli", "config"]
 tracing = { version = "0.1", optional = true }
 
 # Error handling (always on)
-snafu = "0.8"
+snafu = "0.9"
 
 # Config loading (feature: config)
 figment = { version = "0.10", features = ["toml", "env"], optional = true }
