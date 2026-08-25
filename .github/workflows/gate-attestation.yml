@@ -62,6 +62,10 @@ permissions:
 
 jobs:
   gate:
+    # WHY @main, not a pinned SHA: forkwright/.github publishes no tags, so a
+    # SHA pin here has no dependabot bump path and just freezes. forkwright/
+    # .github is first-party -- same org, same trust boundary -- not the
+    # third-party supply-chain case a SHA pin defends against.
     uses: forkwright/.github/.github/workflows/hybrid-gate.yml@main
     with:
       # WHY defaults kept as-is: koinon has its own rust-toolchain.toml --
