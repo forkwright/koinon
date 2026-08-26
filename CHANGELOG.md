@@ -2,6 +2,13 @@
 
 All notable changes to koinon are documented here.
 
+## [0.2.1](https://github.com/forkwright/koinon/compare/v0.2.0...v0.2.1) (2026-08-26)
+
+
+### Bug Fixes
+
+* **ci:** name the real major on the checkout pin ([#57](https://github.com/forkwright/koinon/issues/57)) ([1630799](https://github.com/forkwright/koinon/commit/16307993bf601b90b4b78ba9ad50e373d7c41d25))
+
 ## [0.2.0](https://github.com/forkwright/koinon/compare/v0.1.4...v0.2.0) (2026-08-16)
 
 
