@@ -1,7 +1,7 @@
 [package]
 name = "koinon"
 description = "κοινόν — typed application-bootstrap for forkwright Rust crates: integrated CLI, config, and telemetry init"
-version = "0.2.0"
+version = "0.2.1"
 edition = "2024"
 rust-version = "1.85"
 license = "LicenseRef-PolyForm-Noncommercial-1.0.0"
