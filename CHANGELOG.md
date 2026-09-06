@@ -2,6 +2,13 @@
 
 All notable changes to koinon are documented here.
 
+## [0.3.0](https://github.com/forkwright/koinon/compare/v0.2.1...v0.3.0) (2026-09-06)
+
+
+### Features
+
+* **telemetry:** add a writer-target seam (init_with_writer et al.) ([#61](https://github.com/forkwright/koinon/issues/61)) ([86d7eda](https://github.com/forkwright/koinon/commit/86d7eda648122ed808db5ec70835019599ecbd5a))
+
 ## [0.2.1](https://github.com/forkwright/koinon/compare/v0.2.0...v0.2.1) (2026-08-26)
 
 
