@@ -17,6 +17,35 @@ def test_parse_lock_koinon_entries_finds_external_hamma_entry() -> None:
     assert entries[0].is_external
 
 
+def test_lock_entry_resolved_commit_sha_reads_the_git_fragment() -> None:
+    # WHY this exact value: the real commit koinon's own tag v0.1.0
+    # resolves to in the captured fixture — not hamma's own HEAD, which
+    # this lock entry says nothing about at all.
+    entries = cargo.parse_lock_koinon_entries(
+        read_fixture("hamma_cargo_lock_koinon_entry.lock"), source_path="hamma/Cargo.lock"
+    )
+    assert entries[0].resolved_commit_sha == "d928b96ea3ab3c635c5012e66189988fd40d29fa"
+
+
+def test_lock_entry_resolved_commit_sha_none_for_local_homonym() -> None:
+    # akroasis's local `crates/koinon` has no `source` key at all — no git
+    # fragment to read, so no commit to claim.
+    entries = cargo.parse_lock_koinon_entries(
+        read_fixture("akroasis_cargo_lock_koinon_entry.lock"), source_path="akroasis/Cargo.lock"
+    )
+    assert entries[0].resolved_commit_sha is None
+
+
+def test_lock_entry_resolved_commit_sha_none_for_registry_source_without_fragment() -> None:
+    # A hypothetical future crates.io publish: `registry+` sources carry no
+    # `#<sha>` fragment — `version` is the identifying fact there instead.
+    entry = cargo.LockEntry(
+        version="1.0.0", source="registry+https://github.com/rust-lang/crates.io-index"
+    )
+    assert entry.is_external
+    assert entry.resolved_commit_sha is None
+
+
 def test_parse_lock_koinon_entries_rejects_akroasis_local_homonym() -> None:
     entries = cargo.parse_lock_koinon_entries(
         read_fixture("akroasis_cargo_lock_koinon_entry.lock"), source_path="akroasis/Cargo.lock"

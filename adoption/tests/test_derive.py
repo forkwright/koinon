@@ -61,8 +61,15 @@ def test_derive_repo_resolves_hamma_with_telemetry_reference(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     _write_hamma_checkout(tmp_path)
+    # WHY a value distinct from the fixture's koinon lock-entry commit
+    # (d928b96ea3ab3c635c...): this is hamma's own HEAD, deliberately
+    # unrelated to koinon's commit, so the assertion below can only pass by
+    # reading koinon's resolved commit out of Cargo.lock — the regression
+    # this test exists to catch. The 2026-09-05 fleet-adoption survey found
+    # a prior generator reporting *this* value, the cloned consumer repo's
+    # own HEAD, as koinon's "Source SHA".
     monkeypatch.setattr(
-        derive, "clone_default_branch", lambda owner, name, dest, **_kw: "d928b96ea3ab"
+        derive, "clone_default_branch", lambda owner, name, dest, **_kw: "ffffffffffff"
     )
 
     row = derive.derive_repo(
@@ -76,7 +83,9 @@ def test_derive_repo_resolves_hamma_with_telemetry_reference(
     assert "telemetry" in row.features
     assert row.reference is not None
     assert row.reference.module == "telemetry"
-    assert row.source_sha == "d928b96ea3"  # truncated to 10 chars
+    # koinon's own resolved commit (from the fixture lock entry's `source`
+    # fragment), truncated to 10 chars — not hamma's HEAD ("ffffffffffff").
+    assert row.source_sha == "d928b96ea3"
     assert row.observed_at == "2026-08-10T00:00:00Z"
 
 
@@ -159,6 +168,11 @@ def test_derive_repo_reports_declared_no_lockfile(
     )
 
     assert row.state is AdoptionState.DECLARED_NO_LOCKFILE
+    # No Cargo.lock exists to read a koinon commit from — and, pre-fix,
+    # this field would have surfaced the cloned consumer repo's own HEAD
+    # ("cccccccccccc") instead of honestly reporting "no koinon commit to
+    # show."
+    assert row.source_sha is None
 
 
 def test_read_own_default_features_reads_koinons_real_manifest() -> None:

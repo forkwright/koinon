@@ -14,9 +14,20 @@
 //! ```text
 //! RUST_LOG=debug ./my-binary
 //! ```
+//!
+//! A binary whose stdout is itself a protocol (MCP JSON-RPC over stdio, a
+//! `--format json` diagnostics contract, ...) targets stderr instead via
+//! [`init_with_writer`]:
+//!
+//! ```rust,no_run
+//! koinon::telemetry::init_with_writer("my_crate=info", std::io::stderr);
+//! ```
+
+use std::io;
 
 use tracing_subscriber::EnvFilter;
 use tracing_subscriber::fmt;
+use tracing_subscriber::fmt::MakeWriter;
 
 /// Initialize the global `tracing` subscriber.
 ///
@@ -24,6 +35,12 @@ use tracing_subscriber::fmt;
 /// `default_directive`, which may contain multiple comma-separated
 /// directives (e.g. `"my_crate=info,hyper=warn"`). The directive syntax
 /// follows the [`EnvFilter` directives format][ef].
+///
+/// Writes to stdout — equivalent to
+/// [`init_with_writer`]`(default_directive, `[`std::io::stdout`]`)`. A binary
+/// whose stdout is itself a protocol (MCP JSON-RPC, a `--format json`
+/// contract, ...) must not call this; use [`init_with_writer`] with
+/// [`std::io::stderr`] instead.
 ///
 /// Calling this function more than once is a no-op after the first successful
 /// initialization (the subscriber is set globally via
@@ -41,32 +58,98 @@ use tracing_subscriber::fmt;
 // [workspace] ancestor, which this standalone published crate does not have.
 // kanon:ignore RUST/pub-visibility -- documented public telemetry-init API
 pub fn init(default_directive: &str) {
-    let filter = build_filter(default_directive);
-    let _ = fmt().with_env_filter(filter).try_init(); // WHY: fails only if already initialized
+    init_with_writer(default_directive, io::stdout);
 }
 
 /// Initialize the tracing subscriber with a `compact` formatter.
 ///
 /// Equivalent to [`init`] but uses the compact single-line format, which
-/// reduces output verbosity in long-running services.
+/// reduces output verbosity in long-running services. Writes to stdout —
+/// see [`init_compact_with_writer`] to target a different writer.
 // WHY: genuine cross-crate API; basanos' workspace-library exemption needs a
 // [workspace] ancestor, which this standalone published crate does not have.
 // kanon:ignore RUST/pub-visibility -- documented public telemetry-init API
 pub fn init_compact(default_directive: &str) {
-    let filter = build_filter(default_directive);
-    let _ = fmt().compact().with_env_filter(filter).try_init(); // WHY: fails only if already initialized
+    init_compact_with_writer(default_directive, io::stdout);
 }
 
 /// Initialize the tracing subscriber with JSON output.
 ///
 /// Useful in production services whose structured output feeds a downstream
-/// aggregator (Loki, Elasticsearch, etc.).
+/// aggregator (Loki, Elasticsearch, etc.). Writes to stdout — see
+/// [`init_json_with_writer`] to target a different writer.
 // WHY: genuine cross-crate API; basanos' workspace-library exemption needs a
 // [workspace] ancestor, which this standalone published crate does not have.
 // kanon:ignore RUST/pub-visibility -- documented public telemetry-init API
 pub fn init_json(default_directive: &str) {
+    init_json_with_writer(default_directive, io::stdout);
+}
+
+/// Initialize the global `tracing` subscriber against an explicit writer
+/// target instead of the stdout default [`init`] uses.
+///
+/// For a binary whose stdout is its protocol — MCP JSON-RPC over stdio, a
+/// `--format json` diagnostics contract, or any other stream a stray log
+/// line would corrupt — pass [`std::io::stderr`] (or any other
+/// [`MakeWriter`], including a file appender) instead of hand-rolling the
+/// same `tracing_subscriber::fmt().with_writer(...)` call this wraps.
+///
+/// `RUST_LOG`/`default_directive` resolution is identical to [`init`]; only
+/// the writer target differs.
+///
+/// Calling this function more than once is a no-op after the first successful
+/// initialization, matching [`init`].
+///
+/// # Panics
+///
+/// Does not panic — see [`init`]'s panic note; the same lossy-parsing
+/// behavior applies here.
+// WHY: genuine cross-crate API; basanos' workspace-library exemption needs a
+// [workspace] ancestor, which this standalone published crate does not have.
+// kanon:ignore RUST/pub-visibility -- documented public telemetry-init API
+pub fn init_with_writer<W>(default_directive: &str, make_writer: W)
+where
+    W: for<'writer> MakeWriter<'writer> + Send + Sync + 'static,
+{
     let filter = build_filter(default_directive);
-    let _ = fmt().json().with_env_filter(filter).try_init(); // WHY: fails only if already initialized
+    let _ = fmt()
+        .with_env_filter(filter)
+        .with_writer(make_writer)
+        .try_init(); // WHY: fails only if already initialized
+}
+
+/// [`init_compact`] against an explicit writer target — see
+/// [`init_with_writer`] for the writer-target rationale and semantics.
+// WHY: genuine cross-crate API; basanos' workspace-library exemption needs a
+// [workspace] ancestor, which this standalone published crate does not have.
+// kanon:ignore RUST/pub-visibility -- documented public telemetry-init API
+pub fn init_compact_with_writer<W>(default_directive: &str, make_writer: W)
+where
+    W: for<'writer> MakeWriter<'writer> + Send + Sync + 'static,
+{
+    let filter = build_filter(default_directive);
+    let _ = fmt()
+        .compact()
+        .with_env_filter(filter)
+        .with_writer(make_writer)
+        .try_init(); // WHY: fails only if already initialized
+}
+
+/// [`init_json`] against an explicit writer target — see
+/// [`init_with_writer`] for the writer-target rationale and semantics.
+// WHY: genuine cross-crate API; basanos' workspace-library exemption needs a
+// [workspace] ancestor, which this standalone published crate does not have.
+// kanon:ignore RUST/pub-visibility -- documented public telemetry-init API
+pub fn init_json_with_writer<W>(default_directive: &str, make_writer: W)
+where
+    W: for<'writer> MakeWriter<'writer> + Send + Sync + 'static,
+{
+    let filter = build_filter(default_directive);
+    let _ = fmt()
+        .json()
+        .with_env_filter(filter)
+        .with_writer(make_writer)
+        .try_init(); // WHY: fails only if already initialized
 }
 
 /// Build an [`EnvFilter`] where a set `RUST_LOG` wins outright and

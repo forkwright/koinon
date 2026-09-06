@@ -33,8 +33,14 @@ name, README, or koinon's prior row for it:
   crate that declared the external dependency. See
   `src/koinon_adoption/facts.py` for exactly what this regex does and does
   not match.
-- **Source SHA + observed time** - the cloned commit and the UTC instant
-  `derive` ran.
+- **Source SHA + observed time** - koinon's own commit, read from the `#<sha>`
+  fragment of the resolved `koinon` entry's `source` in the consumer's
+  Cargo.lock (`None`/absent for every non-`resolved` state, since there is
+  no such entry to read), and the UTC instant `derive` ran. Not the
+  consumer repo's own HEAD commit - an earlier version of this tool
+  conflated the two (a hamma commit reported as the "Source SHA" on
+  hamma's row), which the 2026-09-05 fleet-adoption survey flagged as a
+  data-integrity bug.
 
 `check` never touches the network. It re-parses the already-committed block
 and fails when:

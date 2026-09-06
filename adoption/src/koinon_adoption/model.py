@@ -45,5 +45,7 @@ class RepoAdoption:
     state: AdoptionState
     features: frozenset[str]
     reference: ConsumerReference | None
+    # koinon's own resolved commit — see cargo.LockEntry.resolved_commit_sha's
+    # docstring. Never the consumer repo's own HEAD commit.
     source_sha: str | None
     observed_at: str  # ISO 8601 UTC, e.g. "2026-08-15T21:03:00Z"

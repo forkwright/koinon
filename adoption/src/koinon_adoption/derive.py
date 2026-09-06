@@ -227,9 +227,27 @@ def derive_repo(
         state=state,
         features=features,
         reference=reference,
-        source_sha=sha[:10],
+        source_sha=_koinon_source_sha(external_lock),
         observed_at=observed_at,
     )
+
+
+def _koinon_source_sha(external_lock: list[cargo.LockEntry]) -> str | None:
+    """koinon's own resolved commit, truncated to 10 hex chars for display.
+
+    Reads the first external lock entry's `#<sha>` fragment. `None` when
+    there is no resolved external entry at all (every non-`RESOLVED` state)
+    or when the entry has no commit fragment to report (a hypothetical
+    future `registry+` source). Never the *consumer* repo's own HEAD
+    commit — the data-integrity bug the 2026-09-05 fleet-adoption survey
+    found the pre-fix generator reporting under this same "Source SHA"
+    label (e.g. a hamma commit hash on hamma's row).
+    """
+    for entry in external_lock:
+        commit = entry.resolved_commit_sha
+        if commit is not None:
+            return commit[:10]
+    return None
 
 
 def derive_all(
