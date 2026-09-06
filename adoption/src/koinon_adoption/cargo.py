@@ -39,6 +39,27 @@ class LockEntry:
         """True iff this entry can only be the real forkwright/koinon crate."""
         return self.source is not None and self.source.startswith(_EXTERNAL_SOURCE_PREFIXES)
 
+    @property
+    def resolved_commit_sha(self) -> str | None:
+        """koinon's own resolved commit, read from this lock entry's `source`.
+
+        A `git+` source pins an exact commit as a `#<sha>` fragment, e.g.
+        `git+https://github.com/forkwright/koinon?tag=v0.2.1#3424f24...` —
+        that fragment, not anything about the *consumer* repo being
+        examined, is koinon's real "Source SHA". The 2026-09-05
+        fleet-adoption survey found the previous `ADOPTION.md` generator
+        reporting the cloned consumer repo's own HEAD commit under that
+        label instead — e.g. a hamma commit hash on hamma's row, not any
+        commit of koinon itself. A `registry+` source (once koinon
+        publishes to crates.io) carries no commit fragment at all —
+        `version` is the identifying fact there — so this returns `None`
+        for it.
+        """
+        if self.source is None or "#" not in self.source:
+            return None
+        _, _, fragment = self.source.partition("#")
+        return fragment or None
+
 
 class CargoParseError(Exception):
     """Raised when a Cargo.toml / Cargo.lock file is not valid TOML."""

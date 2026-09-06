@@ -277,4 +277,9 @@ same-named *local* crate in a consumer's own workspace — a real case,
 verified against `forkwright/akroasis`'s `crates/koinon` — is distinguished
 from this crate). **Features** and **Consumer reference** are populated only
 when Dependency is `resolved`; a `not adopted (local homonym only)` or
-`unobserved` row cannot support either claim, and never shows one.
+`unobserved` row cannot support either claim, and never shows one. **Source
+SHA** is koinon's own commit, read from the resolved lock entry's `source`
+fragment — never the consumer repo's own HEAD commit (a prior generator bug
+this table used to carry: a hamma commit shown on hamma's row), and blank
+for every state but `resolved`, since only that state has a koinon commit
+to report.
