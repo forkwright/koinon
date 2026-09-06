@@ -33,7 +33,7 @@ default; `error` is always available. Trim the dependency tree with
 <!-- x-release-please-start-version -->
 ```toml
 [dependencies]
-koinon = { git = "https://github.com/forkwright/koinon", tag = "v0.2.1", default-features = false, features = ["config"] }
+koinon = { git = "https://github.com/forkwright/koinon", tag = "v0.3.0", default-features = false, features = ["config"] }
 ```
 <!-- x-release-please-end-version -->
 
@@ -49,7 +49,7 @@ koinon = { git = "https://github.com/forkwright/koinon", tag = "v0.2.1", default
 <!-- x-release-please-start-version -->
 ```toml
 [dependencies]
-koinon = { git = "https://github.com/forkwright/koinon", tag = "v0.2.1" }
+koinon = { git = "https://github.com/forkwright/koinon", tag = "v0.3.0" }
 ```
 <!-- x-release-please-end-version -->
 
