@@ -255,6 +255,17 @@ Regenerate with `koinon-adoption derive` (run automatically by
 every push/PR and fails when the block is hand-edited, drifted from
 `registry.toml`, or older than 14 days.
 
+### Notable adopters
+
+- **aletheia's `xenodocheion`** (standalone stdio MCP server) adopted the
+  `telemetry` leaf's writer-target seam (`init_with_writer`, v0.3.0, #61)
+  to keep tracing output off the stdout stream its MCP JSON-RPC transport
+  owns - merged in `forkwright/aletheia@675c27415fbc4674d712d7d2ebaeba7787fa032b`
+  (PR forkwright/aletheia#7215). The generated table below picks this row
+  up automatically on the next `adoption-refresh` run; this note is the
+  provenance the table itself has no field for (it reports koinon's own
+  resolved commit, not a pointer into a consumer repo's merge history).
+
 <!-- koinon-adoption:generated:start -->
 | Repo | Dependency | Features | Consumer reference | Source SHA | Observed (UTC) |
 |------|-----------|----------|---------------------|-----------|------------------|
