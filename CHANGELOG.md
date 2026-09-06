@@ -2,6 +2,13 @@
 
 All notable changes to koinon are documented here.
 
+## [0.3.1](https://github.com/forkwright/koinon/compare/v0.3.0...v0.3.1) (2026-09-06)
+
+
+### Documentation
+
+* **adoption:** record xenodocheion's koinon telemetry adoption ([#64](https://github.com/forkwright/koinon/issues/64)) ([e874272](https://github.com/forkwright/koinon/commit/e8742728af54bf6ee06de7fae18e7dbc29c19e60))
+
 ## [0.3.0](https://github.com/forkwright/koinon/compare/v0.2.1...v0.3.0) (2026-09-06)
 
 
