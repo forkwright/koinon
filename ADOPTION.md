@@ -31,7 +31,7 @@ In `Cargo.toml`:
 <!-- x-release-please-start-version -->
 ```toml
 [dependencies]
-koinon = { git = "https://github.com/forkwright/koinon", tag = "v0.3.0" }
+koinon = { git = "https://github.com/forkwright/koinon", tag = "v0.3.1" }
 ```
 <!-- x-release-please-end-version -->
 
@@ -50,7 +50,7 @@ Crates that only need one leaf can trim the dependency tree:
 <!-- x-release-please-start-version -->
 ```toml
 [dependencies]
-koinon = { git = "https://github.com/forkwright/koinon", tag = "v0.3.0", default-features = false, features = ["config"] }
+koinon = { git = "https://github.com/forkwright/koinon", tag = "v0.3.1", default-features = false, features = ["config"] }
 ```
 <!-- x-release-please-end-version -->
 
