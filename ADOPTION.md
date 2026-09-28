@@ -269,17 +269,17 @@ every push/PR and fails when the block is hand-edited, drifted from
 <!-- koinon-adoption:generated:start -->
 | Repo | Dependency | Features | Consumer reference | Source SHA | Observed (UTC) |
 |------|-----------|----------|---------------------|-----------|------------------|
-| hamma | resolved | bootstrap, cli, config, telemetry | `crates/dictyon/examples/connect.rs:16` (`koinon::telemetry`) | `3424f241da` | 2026-09-06T15:28:52Z |
-| gnomon | unobserved (private, no cross-repo credential) | — | — | — | 2026-09-06T15:28:52Z |
-| akroasis | not adopted | — | — | — | 2026-09-06T15:28:52Z |
-| aletheia | not adopted | — | — | — | 2026-09-06T15:28:52Z |
-| kanon | unobserved (private, no cross-repo credential) | — | — | — | 2026-09-06T15:28:52Z |
-| logismos | not adopted | — | — | — | 2026-09-06T15:28:52Z |
-| harmonia | not adopted | — | — | — | 2026-09-06T15:28:52Z |
-| thumos | not adopted | — | — | — | 2026-09-06T15:28:52Z |
-| epistole | not adopted | — | — | — | 2026-09-06T15:28:52Z |
-| theatron | not adopted | — | — | — | 2026-09-06T15:28:52Z |
-| dioptron | not adopted | — | — | — | 2026-09-06T15:28:52Z |
+| hamma | resolved | bootstrap, cli, config, telemetry | `crates/dictyon/examples/connect.rs:17` (`koinon::telemetry`) | `e7985b67c8` | 2026-09-28T13:01:35Z |
+| gnomon | unobserved (private, no cross-repo credential) | — | — | — | 2026-09-28T13:01:35Z |
+| akroasis | not adopted | — | — | — | 2026-09-28T13:01:35Z |
+| aletheia | unobserved (private, no cross-repo credential) | — | — | — | 2026-09-28T13:01:35Z |
+| kanon | unobserved (private, no cross-repo credential) | — | — | — | 2026-09-28T13:01:35Z |
+| logismos | not adopted | — | — | — | 2026-09-28T13:01:35Z |
+| harmonia | not adopted | — | — | — | 2026-09-28T13:01:35Z |
+| thumos | unobserved (private, no cross-repo credential) | — | — | — | 2026-09-28T13:01:35Z |
+| epistole | not adopted | — | — | — | 2026-09-28T13:01:35Z |
+| theatron | not adopted | — | — | — | 2026-09-28T13:01:35Z |
+| dioptron | not adopted | — | — | — | 2026-09-28T13:01:35Z |
 <!-- koinon-adoption:generated:end -->
 
 Column meanings: **Dependency** is Cargo.lock's own resolution of the
